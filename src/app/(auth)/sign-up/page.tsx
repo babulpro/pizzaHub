@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp, useSession } from "@/lib/auth-client";
+import { ensureApiToken } from "@/lib/api";
 import {
   AuthAlert,
   AuthShell,
@@ -64,7 +65,8 @@ export default function SignUpPage() {
       return;
     }
 
-    // Account created & session active → redirect to home or dashboard
+    // Account created & session active → sync backend JWT & redirect
+    await ensureApiToken();
     router.push("/");
   };
 

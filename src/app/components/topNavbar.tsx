@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { signOut, useSession } from "@/lib/auth-client";
+import { setStoredToken } from "@/lib/api";
 import PizzaHubLogo from "./pizzahub-logo";
 
 export default function TopNavbar() {
@@ -187,6 +188,7 @@ export default function TopNavbar() {
                       role="menuitem"
                       onClick={() => {
                         setMenuOpen(false);
+                        setStoredToken(null);
                         signOut();
                       }}
                       className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
