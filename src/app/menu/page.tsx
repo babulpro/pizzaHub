@@ -408,7 +408,7 @@ export default function MenuPage() {
                   className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#141418] transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl hover:shadow-black/60"
                 >
                   {/* Pizza Image Frame */}
-                  <div className="relative h-56 w-full overflow-hidden bg-zinc-900">
+                  <Link href={`/menu/${pizza._id}`} className="relative h-56 w-full overflow-hidden bg-zinc-900 block">
                     <Image
                       src={primaryImage}
                       alt={pizza.itemName}
@@ -445,7 +445,7 @@ export default function MenuPage() {
                         </span>
                       )}
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Pizza Card Body */}
                   <div className="flex flex-1 flex-col p-5">
@@ -462,9 +462,11 @@ export default function MenuPage() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
-                      {pizza.itemName}
-                    </h3>
+                    <Link href={`/menu/${pizza._id}`} className="block">
+                      <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+                        {pizza.itemName}
+                      </h3>
+                    </Link>
 
                     {/* Description */}
                     <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400 flex-1">
