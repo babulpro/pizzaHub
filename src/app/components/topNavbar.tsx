@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signOut, useSession } from "@/lib/auth-client";
 import { setStoredToken } from "@/lib/api";
 import PizzaHubLogo from "./pizzahub-logo";
+import ThemeToggle from "./theme-toggle";
 
 export default function TopNavbar() {
   const { data: session, isPending } = useSession();
@@ -100,7 +101,10 @@ export default function TopNavbar() {
         </ul>
 
         {/* Right: Actions / Auth Menu */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Day / Night Theme Toggle */}
+          <ThemeToggle />
+
           {isPending ? (
             /* Loading Skeleton */
             <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-800" />

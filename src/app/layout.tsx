@@ -39,9 +39,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased dark`}
     >
-      <body className="flex min-h-full flex-col bg-[#0c0c0e] text-zinc-100 pt-16">
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('pizzahub_theme') || 'dark';
+                document.documentElement.classList.remove('light', 'dark');
+                document.documentElement.classList.add(theme);
+                var meta = document.querySelector('meta[name="color-scheme"]');
+                if (meta) meta.setAttribute('content', theme);
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="flex min-h-full flex-col bg-[#0c0c0e] text-zinc-100 pt-16 transition-colors duration-200">
         <TopNavbar />
         <main className="flex flex-1 flex-col">
           {children}

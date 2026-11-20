@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+  --background: #0c0c0e;
+  --foreground: #f4f4f5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html.dark {
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html.light {
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ==============================================================================
+   DAY MODE (LIGHT THEME) OVERRIDES
+   Transforms the wood-fired dark theme into a clean, warm artisan Italian bakery aesthetic
+   ============================================================================== */
+
+html.light body {
+  background-color: #f8f9fa !important;
+  color: #1a1a1e !important;
+}
+
+/* Navbar & Header */
+html.light nav,
+html.light header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Primary Backgrounds */
+html.light .bg-\[\#0c0c0e\],
+html.light .bg-\[\#0a0a0d\],
+html.light .bg-\[\#101014\],
+html.light .bg-\[\#121215\],
+html.light .bg-\[\#121216\],
+html.light .bg-\[\#141417\],
+html.light .bg-\[\#14141a\],
+html.light .bg-\[\#16161a\],
+html.light .bg-\[\#16161b\] {
+  background-color: #ffffff !important;
+}
+
+/* Secondary & Card Backgrounds */
+html.light .bg-zinc-900,
+html.light .bg-zinc-900\/40,
+html.light .bg-zinc-900\/50,
+html.light .bg-zinc-900\/60,
+html.light .bg-zinc-900\/70,
+html.light .bg-zinc-900\/80,
+html.light .bg-zinc-900\/90,
+html.light .bg-zinc-950,
+html.light .bg-zinc-950\/40 {
+  background-color: #f3f4f6 !important;
+}
+
+html.light .bg-zinc-800,
+html.light .bg-zinc-800\/60,
+html.light .bg-zinc-800\/70,
+html.light .bg-zinc-800\/80,
+html.light .bg-zinc-850,
+html.light .bg-zinc-850\/80 {
+  background-color: #e5e7eb !important;
+}
+
+/* Borders */
+html.light .border-zinc-800,
+html.light .border-zinc-800\/60,
+html.light .border-zinc-800\/80,
+html.light .border-zinc-800\/90,
+html.light .border-zinc-850,
+html.light .border-zinc-700,
+html.light .border-zinc-700\/80,
+html.light .border-zinc-750 {
+  border-color: #e5e7eb !important;
+}
+
+/* Typography Overrides */
+html.light .text-white {
+  color: #111827 !important;
+}
+
+html.light .text-zinc-100,
+html.light .text-zinc-200 {
+  color: #1f2937 !important;
+}
+
+html.light .text-zinc-300 {
+  color: #374151 !important;
+}
+
+html.light .text-zinc-400 {
+  color: #4b5563 !important;
+}
+
+html.light .text-zinc-500 {
+  color: #6b7280 !important;
+}
+
+/* Gradient Text: Preserve clip-path and transparency */
+html.light .bg-clip-text {
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Colored Buttons & Badges: Retain crisp white text on colored backgrounds */
+html.light [class*="bg-gradient"] .text-white,
+html.light [class*="bg-gradient"] span,
+html.light button[class*="from-amber"],
+html.light a[class*="from-amber"],
+html.light button[class*="from-red"],
+html.light a[class*="from-red"],
+html.light button.bg-amber-500,
+html.light a.bg-amber-500,
+html.light button.bg-red-600,
+html.light a.bg-red-600 {
+  color: #ffffff !important;
+}
+
+/* Form Inputs, Selects & Textareas */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Modals & Dropdown Popups */
+html.light [role="dialog"],
+html.light .fixed .bg-\[\#16161a\],
+html.light .fixed .bg-\[\#121216\] {
+  background-color: #ffffff !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Footer in Day Mode */
+html.light footer {
+  background-color: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
 }
