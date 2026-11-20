@@ -23,7 +23,7 @@ export default function DashboardGateway() {
     } else if (role === "admin") {
       router.replace("/dashboard/admin");
     } else {
-      router.replace("/dashboard/customer/orders");
+      router.replace("/dashboard/customer");
     }
   }, [session, isPending, router]);
 

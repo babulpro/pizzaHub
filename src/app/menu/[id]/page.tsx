@@ -44,6 +44,10 @@ function PizzaDetailsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Related Same-Category Pizzas
+  const [categoryPizzas, setCategoryPizzas] = useState<MenuItemDetails[]>([]);
+  const [categoryLoading, setCategoryLoading] = useState(false);
+
   // Order Form State
   const [orderAddress, setOrderAddress] = useState("");
   const [orderDate, setOrderDate] = useState("");
@@ -56,6 +60,13 @@ function PizzaDetailsContent() {
   useEffect(() => {
     setOrderDate(new Date().toISOString().split("T")[0]);
   }, []);
+
+  // Reset form status when route ID changes
+  useEffect(() => {
+    setOrderSuccess(null);
+    setOrderError(null);
+    setOrderNote("");
+  }, [id]);
 
   // Fetch single pizza details
   useEffect(() => {
@@ -88,6 +99,42 @@ function PizzaDetailsContent() {
       isMounted = false;
     };
   }, [id]);
+
+  // Fetch more pizzas from the same category
+  useEffect(() => {
+    if (!item?.category) return;
+    let isMounted = true;
+    setCategoryLoading(true);
+
+    api
+      .get<MenuItemDetails[]>(`/menu?category=${encodeURIComponent(item.category)}`)
+      .then((res) => {
+        if (!isMounted) return;
+        if (res.success && Array.isArray(res.data)) {
+          const sameCategoryOthers = res.data.filter((p) => p._id !== item._id);
+          if (sameCategoryOthers.length > 0) {
+            setCategoryPizzas(sameCategoryOthers.slice(0, 4));
+          } else {
+            // If no other pizzas in this exact category, offer other signature pies
+            api.get<MenuItemDetails[]>("/menu").then((allRes) => {
+              if (isMounted && allRes.success && Array.isArray(allRes.data)) {
+                setCategoryPizzas(allRes.data.filter((p) => p._id !== item._id).slice(0, 4));
+              }
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load same-category pizzas:", err);
+      })
+      .finally(() => {
+        if (isMounted) setCategoryLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [item?._id, item?.category]);
 
   // Handle Order Submission
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -461,6 +508,153 @@ function PizzaDetailsContent() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* MORE PIZZAS IN THE SAME CATEGORY                    */}
+        {/* ==================================================== */}
+        {item && categoryPizzas.length > 0 && (
+          <section className="mt-16 border-t border-zinc-800/90 pt-12">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+              <div>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400">
+                  <span>🍕</span>
+                  <span>SAME CATEGORY SELECTION</span>
+                </div>
+                <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                  More From {item.category}
+                </h2>
+                <p className="mt-1 text-xs text-zinc-400">
+                  Explore other hand-crafted wood-fired pizzas in this category.
+                </p>
+              </div>
+
+              <Link
+                href="/menu"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition shrink-0"
+              >
+                <span>View Full Menu</span>
+                <span>→</span>
+              </Link>
+            </div>
+
+            {/* Grid of related same-category pizzas */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {categoryPizzas.map((related) => {
+                const relImageSrc =
+                  related.images && related.images.length > 0
+                    ? related.images[0]
+                    : "https://images.unsplash.com/photo-1544982503-9f984c14501a?auto=format&fit=crop&w=800&q=80";
+
+                return (
+                  <div
+                    key={related._id}
+                    className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/60 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10"
+                  >
+                    <div>
+                      {/* Image Frame */}
+                      <Link
+                        href={`/menu/${related._id}`}
+                        className="relative h-44 w-full overflow-hidden bg-zinc-950 block"
+                      >
+                        <Image
+                          src={relImageSrc}
+                          alt={related.itemName}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent" />
+
+                        {/* Category Badge */}
+                        <div className="absolute top-3 left-3">
+                          <span className="rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-semibold text-zinc-200 backdrop-blur-md border border-white/10">
+                            {related.category}
+                          </span>
+                        </div>
+
+                        {/* Spicy & Vegetarian Tags */}
+                        <div className="absolute top-3 right-3 flex items-center gap-1">
+                          {related.isSpicy && (
+                            <span
+                              title="Spicy Recipe"
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-[10px] text-white shadow-sm"
+                            >
+                              🔥
+                            </span>
+                          )}
+                          {related.isVegetarian && (
+                            <span
+                              title="Vegetarian"
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600/90 text-[10px] text-white shadow-sm"
+                            >
+                              🌿
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Gold Badge */}
+                        {Boolean(related.isPremium) && (
+                          <div className="absolute bottom-2.5 left-3">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-400/50 px-2 py-0.5 text-[9px] font-bold text-amber-300 backdrop-blur-md">
+                              ⭐ Gold Kitchen
+                            </span>
+                          </div>
+                        )}
+                      </Link>
+
+                      {/* Content */}
+                      <div className="p-4">
+                        <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-1.5">
+                          <span className="truncate max-w-[70%]">📍 {related.location}</span>
+                          {related.prepTime && (
+                            <span className="text-amber-400/90 shrink-0 text-[10px] font-medium">
+                              ⏱️ {related.prepTime}
+                            </span>
+                          )}
+                        </div>
+
+                        <Link href={`/menu/${related._id}`}>
+                          <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-1">
+                            {related.itemName}
+                          </h3>
+                        </Link>
+
+                        <p className="mt-1 text-xs leading-relaxed text-zinc-400 line-clamp-2">
+                          {related.description}
+                        </p>
+
+                        {related.vendor?.businessName && (
+                          <p className="mt-2 text-[10px] text-zinc-500 truncate">
+                            By <span className="text-zinc-300 font-medium">{related.vendor.businessName}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom Price & Order Link */}
+                    <div className="p-4 pt-0">
+                      <div className="flex items-center justify-between border-t border-zinc-800/80 pt-3">
+                        <div>
+                          <span className="text-[9px] uppercase font-semibold text-zinc-500 block">Price</span>
+                          <span className="text-base font-black text-white">
+                            ${related.price.toFixed(2)}
+                          </span>
+                        </div>
+
+                        <Link
+                          href={`/menu/${related._id}`}
+                          className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs font-bold text-black hover:brightness-110 transition shadow-sm"
+                        >
+                          Order / View →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
       </main>
 
