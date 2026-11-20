@@ -10,6 +10,7 @@ import {
   AuthShell,
   Divider,
   PasswordInput,
+  RolePicker,
   SocialButtons,
   SubmitButton,
   inputClasses,
@@ -144,6 +145,8 @@ export default function SignInPage() {
 
         <form onSubmit={onSubmit} className="space-y-5" noValidate={false}>
           <AuthAlert message={error} />
+
+          <RolePicker value={role} onChange={setRole} />
 
           <div>
             <label htmlFor="email" className={labelClasses}>
