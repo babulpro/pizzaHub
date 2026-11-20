@@ -2,9 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
 import { PizzaSliceIcon } from "./pizzahub-logo";
 
 export default function Hero() {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const userRole = (user as { role?: string })?.role;
+
+  // Contextual action based on whether the user is already signed in
+  const secondaryAction = user
+    ? userRole === "vendor"
+      ? { href: "/dashboard/vendor", label: "Manage My Pizzeria", icon: "👨‍🍳" }
+      : userRole === "admin"
+      ? { href: "/dashboard/admin", label: "Admin Console", icon: "⚡" }
+      : { href: "/dashboard/customer/orders", label: "Track My Orders", icon: "📦" }
+    : { href: "/sign-up?role=vendor", label: "Partner As Pizzeria", icon: "👨‍🍳" };
+
   return (
     <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24">
       {/* Ambient Glows */}
@@ -48,11 +62,11 @@ export default function Hero() {
               </Link>
 
               <Link
-                href="/sign-up?role=vendor"
+                href={secondaryAction.href}
                 className="flex items-center justify-center gap-2 rounded-xl border border-zinc-700/80 bg-zinc-900/60 px-6 py-3.5 text-base font-semibold text-zinc-200 shadow-xs backdrop-blur-sm transition-all hover:border-amber-500/50 hover:bg-zinc-800 hover:text-white hover:-translate-y-0.5"
               >
-                <span>👨‍🍳</span>
-                <span>Partner As Pizzeria</span>
+                <span>{secondaryAction.icon}</span>
+                <span>{secondaryAction.label}</span>
               </Link>
             </div>
 

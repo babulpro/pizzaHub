@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "@/lib/auth-client";
+import { signIn, useSession } from "@/lib/auth-client";
 import {
   AuthAlert,
   AuthShell,
@@ -19,11 +19,19 @@ import {
 
 export default function SignInPage() {
   const router = useRouter();
+  const { data: session, isPending: sessionLoading } = useSession();
   const [email, setEmail] = useState("");
   const [remember, setRemember] = useState(true);
   const [role, setRole] = useState<Role>("customer");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // If user is already authenticated, redirect them away from auth pages
+  useEffect(() => {
+    if (!sessionLoading && session?.user) {
+      router.replace("/");
+    }
+  }, [session, sessionLoading, router]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

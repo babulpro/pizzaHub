@@ -5,18 +5,24 @@ import Link from "next/link";
 import { signOut, useSession } from "@/lib/auth-client";
 import PizzaHubLogo from "./pizzahub-logo";
 
-const NAV_LINKS = [
-  { label: "Browse Menu", href: "/menu" },
-  { label: "Hot Deals", href: "/#deals" },
-  { label: "For Pizzerias", href: "/sign-up?role=vendor" },
-  { label: "Track Order", href: "/dashboard/customer/orders" },
-];
-
 export default function TopNavbar() {
   const { data: session, isPending } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const user = session?.user;
+  const userRole = (user as { role?: string })?.role || "customer";
+
+  const navLinks = [
+    { label: "Browse Menu", href: "/menu" },
+    { label: "Hot Deals", href: "/#deals" },
+    {
+      label: userRole === "vendor" ? "Kitchen Dashboard" : "For Pizzerias",
+      href: userRole === "vendor" ? "/dashboard/vendor" : "/sign-up?role=vendor",
+    },
+    { label: "Track Order", href: "/dashboard/customer/orders" },
+  ];
 
   // Close the user dropdown when clicking outside
   useEffect(() => {
@@ -29,9 +35,6 @@ export default function TopNavbar() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
-
-  const user = session?.user;
-  const userRole = (user as { role?: string })?.role || "customer";
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -71,7 +74,7 @@ export default function TopNavbar() {
 
         {/* Center: Desktop Navigation Links */}
         <ul className="hidden items-center gap-7 md:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <li key={link.label}>
               <Link
                 href={link.href}
@@ -252,7 +255,7 @@ export default function TopNavbar() {
       {mobileNavOpen && (
         <div className="border-b border-zinc-800 bg-[#121215] px-6 py-4 md:hidden">
           <ul className="flex flex-col gap-3">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <li key={link.label}>
                 <Link
                   href={link.href}
