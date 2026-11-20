@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { api, ensureApiToken } from "@/lib/api";
 import PizzaHubLogo from "./pizzahub-logo";
 
 interface PolicyModalInfo {
@@ -59,15 +62,53 @@ const POLICY_DATA: Record<string, PolicyModalInfo> = {
 };
 
 export default function Footer() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [authRequired, setAuthRequired] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user?.email && !newsletterEmail) {
+      setNewsletterEmail(user.email);
+    }
+  }, [user]);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newsletterEmail.trim()) {
-      setSubscribed(true);
-      setNewsletterEmail("");
+    setMessage(null);
+    setAuthRequired(false);
+
+    if (!user) {
+      setAuthRequired(true);
+      return;
+    }
+
+    const emailToSubmit = (newsletterEmail || user.email || "").trim();
+    if (!emailToSubmit) return;
+
+    setLoading(true);
+    try {
+      await ensureApiToken();
+      const res = await api.post<{ message?: string; alreadyJoined?: boolean }>("/vip/join", {
+        email: emailToSubmit,
+      });
+
+      if (res.success) {
+        setSubscribed(true);
+        setMessage(res.message || "Welcome to the PizzaHub VIP Club!");
+      } else {
+        setMessage(res.message || "Could not join VIP Club. Please try again.");
+      }
+    } catch (err: unknown) {
+      setMessage(err instanceof Error ? err.message : "Error joining VIP club.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -264,11 +305,17 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Newsletter Subscription Strip */}
-        <div className="mt-12 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-md">
+        {/* Newsletter / VIP Club Subscription Strip */}
+        <div id="vip" className="mt-12 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-md">
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <h5 className="text-sm font-bold text-white">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                  Exclusive Community
+                </span>
+                <span className="text-[11px] text-zinc-500">• 100% Free Forever</span>
+              </div>
+              <h5 className="text-base font-bold text-white mt-1">
                 Join the PizzaHub VIP Club 🍕
               </h5>
               <p className="mt-1 text-xs text-zinc-400">
@@ -279,7 +326,26 @@ export default function Footer() {
             {subscribed ? (
               <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-4 py-2.5 text-xs font-semibold text-emerald-400">
                 <span>✓</span>
-                <span>You&apos;re on the VIP Pizza List!</span>
+                <span>{message || "You're on the VIP Pizza List!"}</span>
+              </div>
+            ) : authRequired ? (
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <span className="text-xs text-amber-400 font-medium">
+                  🔒 You must be signed in to join the VIP Club.
+                </span>
+                <Link
+                  href="/sign-in?callbackUrl=/#vip"
+                  className="rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:opacity-95 text-center shrink-0"
+                >
+                  Sign In to Join →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setAuthRequired(false)}
+                  className="text-xs text-zinc-500 hover:text-white cursor-pointer"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex w-full max-w-sm items-center gap-2">
@@ -293,13 +359,17 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:brightness-110 active:scale-95"
+                  disabled={loading}
+                  className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
-                  Join Free
+                  {loading ? "Joining..." : "Join Free"}
                 </button>
               </form>
             )}
           </div>
+          {message && !subscribed && (
+            <p className="mt-2 text-xs text-red-400">{message}</p>
+          )}
         </div>
 
         {/* Bottom Bar: Copyright & Security */}

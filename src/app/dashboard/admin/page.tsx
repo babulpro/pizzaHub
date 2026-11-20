@@ -80,6 +80,17 @@ interface AdminTransaction {
   };
 }
 
+interface AdminVipMember {
+  _id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar?: string;
+  status: string;
+  joinedAt: string;
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { data: session, isPending: isAuthPending } = useSession();
@@ -87,14 +98,15 @@ export default function AdminDashboardPage() {
     | { id?: string; name?: string; email?: string; role?: string }
     | undefined;
 
-  // View state: users | menu | orders | transactions
-  const [activeTab, setActiveTab] = useState<"users" | "menu" | "orders" | "transactions">("users");
+  // View state: users | menu | orders | transactions | vip
+  const [activeTab, setActiveTab] = useState<"users" | "menu" | "orders" | "transactions" | "vip">("users");
 
   // Data collections
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [menuItems, setMenuItems] = useState<AdminMenuItem[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [transactions, setTransactions] = useState<AdminTransaction[]>([]);
+  const [vipMembers, setVipMembers] = useState<AdminVipMember[]>([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
   const [loading, setLoading] = useState(true);
@@ -108,6 +120,7 @@ export default function AdminDashboardPage() {
   const [menuStatusFilter, setMenuStatusFilter] = useState("all");
   const [menuSearch, setMenuSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [vipSearch, setVipSearch] = useState("");
 
   // Summary Metrics (Declared before early returns for React Hook rules)
   const stats = useMemo(() => {
@@ -130,8 +143,19 @@ export default function AdminDashboardPage() {
       pendingPizzas,
       totalOrdersCount,
       totalRevenue,
+      vipCount: vipMembers.length,
     };
-  }, [users, menuItems, orders, totalRevenue]);
+  }, [users, menuItems, orders, totalRevenue, vipMembers]);
+
+  const filteredVipMembers = useMemo(() => {
+    if (!vipSearch.trim()) return vipMembers;
+    const q = vipSearch.toLowerCase();
+    return vipMembers.filter(
+      (m) =>
+        m.name?.toLowerCase().includes(q) ||
+        m.email?.toLowerCase().includes(q)
+    );
+  }, [vipMembers, vipSearch]);
 
   // Filtered Users
   const filteredUsers = useMemo(() => {
@@ -176,11 +200,12 @@ export default function AdminDashboardPage() {
       await ensureApiToken();
 
       // Parallel fetch across admin endpoints
-      const [usersRes, menuRes, ordersRes, txnRes] = await Promise.allSettled([
+      const [usersRes, menuRes, ordersRes, txnRes, vipRes] = await Promise.allSettled([
         api.get<AdminUser[]>("/users"),
         api.get<AdminMenuItem[]>("/menu/admin/all"),
         api.get<AdminOrder[]>("/orders/admin/all"),
         api.get<AdminTransaction[]>("/transactions"),
+        api.get<AdminVipMember[]>("/vip/members"),
       ]);
 
       if (usersRes.status === "fulfilled" && usersRes.value.success && Array.isArray(usersRes.value.data)) {
@@ -200,10 +225,39 @@ export default function AdminDashboardPage() {
           setTotalRevenue(txnRes.value.totalRevenue);
         }
       }
+      if (vipRes.status === "fulfilled" && vipRes.value.success && Array.isArray(vipRes.value.data)) {
+        setVipMembers(vipRes.value.data);
+      }
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Error loading administrative data.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle Remove VIP Club Member
+  const handleRemoveVipMember = async (member: AdminVipMember) => {
+    if (!confirm(`Are you sure you want to remove "${member.name} (${member.email})" from the VIP Club?`)) {
+      return;
+    }
+
+    setActionLoadingId(member._id);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await ensureApiToken();
+      const res = await api.delete<{ message: string }>(`/vip/members/${member._id}`);
+
+      if (res.success) {
+        setSuccessMessage(`Removed "${member.name}" from the VIP Club roster.`);
+        setVipMembers((prev) => prev.filter((m) => m._id !== member._id));
+      } else {
+        setErrorMessage(res.message || "Failed to remove VIP member.");
+      }
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Error removing VIP member.");
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
@@ -521,6 +575,19 @@ export default function AdminDashboardPage() {
           >
             <span>💳</span>
             <span>Stripe Revenue (${totalRevenue.toFixed(0)})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("vip")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition ${
+              activeTab === "vip"
+                ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
+                : "bg-zinc-900 text-zinc-400 hover:text-white"
+            }`}
+          >
+            <span>✨</span>
+            <span>VIP Club Members ({vipMembers.length})</span>
           </button>
         </div>
 
@@ -889,6 +956,27 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        }
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            disabled={actionLoadingId === member._id}
+                            onClick={() => handleRemoveVipMember(member)}
+                            className="rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition disabled:opacity-50 cursor-pointer"
+                          >
+                            {actionLoadingId === member._id ? "Removing..." : "Remove"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ==================================================== */}
         {/* TAB 4: STRIPE REVENUE & TRANSACTIONS                 */}
         {/* ==================================================== */}
@@ -958,6 +1046,119 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* TAB 5: VIP CLUB MEMBERS                              */}
+        {/* ==================================================== */}
+        {activeTab === "vip" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Header & Search */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-[#141418] p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-xl border border-amber-500/30">
+                  ✨
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">VIP Club Roster</h3>
+                  <p className="text-xs text-zinc-400">
+                    Foodies registered for secret weekend pizza drops and tasting invitations ({vipMembers.length} members)
+                  </p>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="w-full sm:w-72">
+                <input
+                  type="text"
+                  value={vipSearch}
+                  onChange={(e) => setVipSearch(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Members Table */}
+            {filteredVipMembers.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-zinc-800 p-12 text-center bg-zinc-950/40">
+                <span className="text-4xl">🍕</span>
+                <h4 className="mt-4 text-base font-bold text-white">No VIP Members Found</h4>
+                <p className="mt-1 text-xs text-zinc-400">
+                  {vipSearch
+                    ? "No members match your search criteria."
+                    : "No users have joined the VIP Club yet. Foodies can join directly from the footer!"}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-[#141418]">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3 px-4">Member</th>
+                      <th className="py-3 px-4">Account Role</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Joined Date</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
+                    {filteredVipMembers.map((member) => (
+                      <tr key={member._id} className="hover:bg-zinc-850/50 transition">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 to-red-600 font-bold text-white shadow-xs">
+                              {(member.name || member.email).charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-bold text-white">{member.name}</p>
+                              <p className="text-[11px] text-zinc-400">{member.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
+                              member.role === "vendor"
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                                : member.role === "admin"
+                                ? "bg-red-500/20 text-red-300 border border-red-500/40"
+                                : "bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                            }`}
+                          >
+                            {member.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                            Active VIP
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-zinc-400">
+                          {new Date(member.joinedAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            disabled={actionLoadingId === member._id}
+                            onClick={() => handleRemoveVipMember(member)}
+                            className="rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition disabled:opacity-50 cursor-pointer"
+                          >
+                            {actionLoadingId === member._id ? "Removing..." : "Remove"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </main>
