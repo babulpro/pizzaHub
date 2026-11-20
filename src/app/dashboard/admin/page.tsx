@@ -956,27 +956,6 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        }
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <button
-                            type="button"
-                            disabled={actionLoadingId === member._id}
-                            onClick={() => handleRemoveVipMember(member)}
-                            className="rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition disabled:opacity-50 cursor-pointer"
-                          >
-                            {actionLoadingId === member._id ? "Removing..." : "Remove"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ==================================================== */}
         {/* TAB 4: STRIPE REVENUE & TRANSACTIONS                 */}
         {/* ==================================================== */}
