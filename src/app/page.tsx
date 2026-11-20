@@ -3,7 +3,6 @@ import FeaturedPizzas from "./components/featured-pizzas";
 import HowItWorks from "./components/how-it-works";
 import VendorSpotlight from "./components/vendor-spotlight";
 import Testimonials from "./components/testimonials";
-import Footer from "./components/footer";
 
 export default function Home() {
   return (
@@ -22,9 +21,6 @@ export default function Home() {
 
       {/* 5. Foodie Community Reviews: Real 5-Star Testimonials & Social Proof */}
       <Testimonials />
-
-      {/* 6. Comprehensive Footer: Important Legal Links, Modals, System Status & Newsletter */}
-      <Footer />
     </div>
   );
 }

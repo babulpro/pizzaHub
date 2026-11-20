@@ -28,7 +28,7 @@ export function setStoredToken(token: string | null): void {
  * Ensures the client has an active backend JWT token.
  * If missing, automatically exchanges the active Better-Auth session for an Express JWT.
  */
-export async function ensureApiToken(): Promise<string | null> {
+export async function ensureApiToken(password?: string): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   let token = getStoredToken();
@@ -59,6 +59,7 @@ export async function ensureApiToken(): Promise<string | null> {
           name: user.name,
           role: user.role || 'customer',
           businessName: user.businessName,
+          password: password,
         }),
       });
 

@@ -60,13 +60,39 @@ export default function SignUpPage() {
     });
 
     if (authError) {
+      // Fallback: If Better-Auth fails, attempt direct server registration via API
+      try {
+        const directRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "https://pizzaserver.vercel.app/api"}/auth/register`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: name.trim(),
+              email: email.trim(),
+              password,
+              role,
+              businessName: role === "vendor" ? businessName?.trim() : undefined,
+            }),
+          }
+        );
+        const directData = await directRes.json();
+        if (directData.success && directData.token) {
+          localStorage.setItem("pizzahub_jwt_token", directData.token);
+          router.push("/");
+          return;
+        }
+      } catch {
+        // Direct fallback failed
+      }
+
       setError(authError.message ?? "Could not create your PizzaHub account. Please try again.");
       setLoading(false);
       return;
     }
 
-    // Account created & session active → sync backend JWT & redirect
-    await ensureApiToken();
+    // Account created & session active → sync backend JWT with password & redirect
+    await ensureApiToken(password);
     router.push("/");
   };
 

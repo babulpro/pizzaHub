@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
-import { api } from "@/lib/api";
+import { api, ensureApiToken } from "@/lib/api";
 import { PizzaSliceIcon } from "../components/pizzahub-logo";
 
 export interface MenuItem {
@@ -137,6 +137,7 @@ export default function MenuPage() {
     setOrderSuccess(null);
 
     try {
+      await ensureApiToken();
       const res = await api.post("/orders", {
         itemId: selectedItem._id,
         deliveryDate: orderDate,
@@ -484,7 +485,7 @@ export default function MenuPage() {
                     )}
 
                     {/* Bottom: Price & Order Action */}
-                    <div className="mt-4 flex items-center justify-between pt-2 border-t border-zinc-800/80">
+                    <div className="mt-4 flex items-center justify-between pt-2 border-t border-zinc-800/80 gap-2">
                       <div>
                         <span className="text-[10px] uppercase font-semibold text-zinc-500 block">Price</span>
                         <span className="text-xl font-extrabold text-white">
@@ -492,18 +493,26 @@ export default function MenuPage() {
                         </span>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedItem(pizza);
-                          setOrderError(null);
-                          setOrderSuccess(null);
-                        }}
-                        className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition hover:opacity-95 active:scale-95"
-                      >
-                        <span>🍕</span>
-                        <span>Order Now</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/menu/${pizza._id}`}
+                          className="rounded-xl border border-zinc-700/80 bg-zinc-800/70 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700 hover:text-white"
+                        >
+                          Details
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(pizza);
+                            setOrderError(null);
+                            setOrderSuccess(null);
+                          }}
+                          className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition hover:opacity-95 active:scale-95"
+                        >
+                          <span>🍕</span>
+                          <span>Order</span>
+                        </button>
+                      </div>
                     </div>
 
                   </div>
@@ -554,15 +563,29 @@ export default function MenuPage() {
             {/* Form */}
             {!user ? (
               <div className="py-6 text-center space-y-4">
-                <p className="text-sm text-zinc-300">
-                  Please sign in to place your order and get live kitchen updates.
-                </p>
-                <Link
-                  href="/sign-in"
-                  className="inline-block rounded-xl bg-gradient-to-r from-amber-500 to-red-600 px-6 py-2.5 text-sm font-bold text-white"
-                >
-                  Sign In to Continue
-                </Link>
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-3xl">
+                  🔒
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white">Sign In Required</h4>
+                  <p className="mt-1 text-xs text-zinc-400 max-w-xs mx-auto">
+                    Please sign in with your customer account to order <span className="text-amber-400 font-semibold">{selectedItem.itemName}</span> and track live kitchen prep.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 pt-2">
+                  <Link
+                    href={`/sign-in?callbackUrl=/menu/${selectedItem._id}`}
+                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-orange-500/20 hover:opacity-95 text-center"
+                  >
+                    Sign In to Continue &rarr;
+                  </Link>
+                  <Link
+                    href={`/menu/${selectedItem._id}`}
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 text-center"
+                  >
+                    View Full Pizza Details
+                  </Link>
+                </div>
               </div>
             ) : (
               <form onSubmit={handlePlaceOrder} className="mt-4 space-y-4">
@@ -635,6 +658,8 @@ export default function MenuPage() {
         </div>
       )}
 
+      {/* Global Footer */}
+      <Footer />
     </div>
   );
 }

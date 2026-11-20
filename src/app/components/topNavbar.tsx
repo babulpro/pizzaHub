@@ -14,15 +14,25 @@ export default function TopNavbar() {
 
   const user = session?.user;
   const userRole = (user as { role?: string })?.role || "customer";
+  const isPremium = (user as { subscriptionPlan?: string })?.subscriptionPlan === "premium";
 
+  // Dynamic Navigation Links based on role
   const navLinks = [
     { label: "Browse Menu", href: "/menu" },
-    { label: "Hot Deals", href: "/#deals" },
-    {
-      label: userRole === "vendor" ? "Kitchen Dashboard" : "For Pizzerias",
-      href: userRole === "vendor" ? "/dashboard/vendor" : "/sign-up?role=vendor",
-    },
-    { label: "Track Order", href: "/dashboard/customer/orders" },
+    ...(userRole === "vendor"
+      ? [
+          { label: "Kitchen Dashboard", href: "/dashboard/vendor" },
+          { label: "★ Subscription", href: "/dashboard/vendor/subscription" },
+        ]
+      : userRole === "admin"
+      ? [
+          { label: "⚡ Admin Console", href: "/dashboard/admin" },
+        ]
+      : [
+          { label: "Hot Deals", href: "/#deals" },
+          { label: "Track Orders", href: "/dashboard/customer" },
+          { label: "For Pizzerias", href: "/sign-up?role=vendor" },
+        ]),
   ];
 
   // Close the user dropdown when clicking outside
@@ -41,17 +51,19 @@ export default function TopNavbar() {
     switch (role) {
       case "vendor":
         return {
-          label: "Pizzeria Partner",
-          className: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+          label: isPremium ? "★ Gold Pizzeria" : "👨‍🍳 Pizzeria Partner",
+          className: isPremium
+            ? "bg-amber-400/20 text-amber-300 border-amber-400/40"
+            : "bg-amber-500/20 text-amber-300 border-amber-500/30",
         };
       case "admin":
         return {
-          label: "Administrator",
-          className: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+          label: "⚡ Super Admin",
+          className: "bg-red-500/20 text-red-300 border-red-500/30",
         };
       default:
         return {
-          label: "Pizza Lover",
+          label: "🍕 Artisan Foodie",
           className: "bg-orange-500/20 text-orange-300 border-orange-500/30",
         };
     }
@@ -62,7 +74,7 @@ export default function TopNavbar() {
   const getDashboardLink = () => {
     if (userRole === "admin") return "/dashboard/admin";
     if (userRole === "vendor") return "/dashboard/vendor";
-    return "/dashboard/customer/orders";
+    return "/dashboard/customer";
   };
 
   return (
@@ -166,19 +178,45 @@ export default function TopNavbar() {
                       Dashboard
                     </Link>
 
-                    <Link
-                      href="/dashboard/customer/orders"
-                      role="menuitem"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-800/80"
-                    >
-                      <svg className="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <path d="M16 10a4 4 0 0 1-8 0" />
-                      </svg>
-                      My Orders
-                    </Link>
+                    {userRole === "customer" && (
+                      <Link
+                        href="/dashboard/customer"
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-800/80"
+                      >
+                        <svg className="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <path d="M16 10a4 4 0 0 1-8 0" />
+                        </svg>
+                        My Orders
+                      </Link>
+                    )}
+
+                    {userRole === "vendor" && (
+                      <Link
+                        href="/dashboard/vendor/subscription"
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-amber-400 transition hover:bg-zinc-800/80"
+                      >
+                        <span>★</span>
+                        <span>Subscription & Quota</span>
+                      </Link>
+                    )}
+
+                    {userRole === "admin" && (
+                      <Link
+                        href="/dashboard/admin"
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-300 transition hover:bg-zinc-800/80"
+                      >
+                        <span>⚡</span>
+                        <span>Platform Administration</span>
+                      </Link>
+                    )}
                   </div>
 
                   {/* Sign Out */}

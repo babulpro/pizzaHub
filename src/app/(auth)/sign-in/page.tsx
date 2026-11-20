@@ -22,6 +22,7 @@ export default function SignInPage() {
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [role, setRole] = useState<Role>("customer");
   const [loading, setLoading] = useState(false);
@@ -34,20 +35,56 @@ export default function SignInPage() {
     }
   }, [session, sessionLoading, router]);
 
+  const fillDemoAccount = (demoEmail: string, demoPass: string, demoRole?: Role) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    if (demoRole) setRole(demoRole);
+    setError(null);
+  };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    const emailVal = (formData.get("email") as string) || email;
+    const passwordVal = (formData.get("password") as string) || password;
+
+    if (!emailVal || !passwordVal) {
+      setError("Please provide both email and password.");
+      setLoading(false);
+      return;
+    }
+
     const { error: authError } = await signIn.email({
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: emailVal,
+      password: passwordVal,
       rememberMe: remember,
       callbackURL: "/",
     });
 
     if (authError) {
+      // Fallback: If Better-Auth session fails, attempt direct server login via API
+      try {
+        const directRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "https://pizzaserver.vercel.app/api"}/auth/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailVal, password: passwordVal }),
+          }
+        );
+        const directData = await directRes.json();
+        if (directData.success && directData.token) {
+          localStorage.setItem("pizzahub_jwt_token", directData.token);
+          router.push("/");
+          return;
+        }
+      } catch {
+        // Direct fallback failed
+      }
+
       setError(
         authError.message === "Invalid email or password"
           ? "Incorrect email or password. Please try again."
@@ -58,7 +95,7 @@ export default function SignInPage() {
     }
 
     // Success → sync backend JWT & redirect
-    await ensureApiToken();
+    await ensureApiToken(passwordVal);
     router.push("/");
   };
 
@@ -81,6 +118,37 @@ export default function SignInPage() {
       <div className="space-y-6">
         <SocialButtons role={role} onError={setError} />
         <Divider />
+
+        {/* 1-Click Demo Credentials */}
+        <div className="rounded-xl border border-zinc-800 bg-[#16161b] p-3">
+          <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+            <span className="font-semibold text-amber-400">⚡ 1-Click Demo Logins:</span>
+            <span className="text-zinc-500">Auto-fills test account</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => fillDemoAccount("admin@pizzahub.com", "12345678")}
+              className="rounded-lg border border-red-500/30 bg-red-500/10 py-1.5 px-2 text-[11px] font-bold text-red-300 hover:bg-red-500/20 transition text-center cursor-pointer"
+            >
+              👑 Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoAccount("marco@fornonapoli.com", "12345678", "vendor")}
+              className="rounded-lg border border-amber-500/30 bg-amber-500/10 py-1.5 px-2 text-[11px] font-bold text-amber-300 hover:bg-amber-500/20 transition text-center cursor-pointer"
+            >
+              👨‍🍳 Vendor
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoAccount("amina@customer.com", "12345678", "customer")}
+              className="rounded-lg border border-orange-500/30 bg-orange-500/10 py-1.5 px-2 text-[11px] font-bold text-orange-300 hover:bg-orange-500/20 transition text-center cursor-pointer"
+            >
+              🍕 Customer
+            </button>
+          </div>
+        </div>
 
         <form onSubmit={onSubmit} className="space-y-5" noValidate={false}>
           <AuthAlert message={error} />
@@ -110,7 +178,12 @@ export default function SignInPage() {
                 Password
               </label>
             </div>
-            <PasswordInput name="password" autoComplete="current-password" />
+            <PasswordInput
+              name="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={setPassword}
+            />
           </div>
 
           {/* Remember me */}
