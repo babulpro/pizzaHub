@@ -132,8 +132,10 @@ export default function FeaturedPizzas() {
           <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pizzas.map((pizza) => {
               const imageSrc =
-                pizza.images && pizza.images.length > 0
+                Array.isArray(pizza.images) && pizza.images.length > 0 && pizza.images[0]
                   ? pizza.images[0]
+                  : typeof pizza.images === "string" && pizza.images
+                  ? pizza.images
                   : "https://images.unsplash.com/photo-1544982503-9f984c14501a?auto=format&fit=crop&w=1000&q=80";
 
               return (
@@ -234,14 +236,22 @@ export default function FeaturedPizzas() {
                         </span>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleOrderClick(pizza)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-amber-500/20 transition-all hover:brightness-110 active:scale-95 cursor-pointer"
-                      >
-                        <span>Order</span>
-                        <span>→</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/menu/${pizza._id}`}
+                          className="rounded-xl border border-zinc-750 bg-zinc-800/80 px-2.5 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-700 hover:text-white"
+                        >
+                          Details
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleOrderClick(pizza)}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-amber-500/20 transition-all hover:brightness-110 active:scale-95 cursor-pointer"
+                        >
+                          <span>Order</span>
+                          <span>→</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

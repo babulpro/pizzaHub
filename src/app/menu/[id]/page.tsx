@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api } from "@/lib/api";
-import Footer from "@/app/components/footer";
 
 interface MenuItemDetails {
   _id: string;
@@ -657,8 +656,6 @@ function PizzaDetailsContent() {
           </section>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

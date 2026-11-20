@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
-import Footer from "@/app/components/footer";
 
 interface VendorMenuItem {
   _id: string;
@@ -1109,8 +1108,6 @@ export default function VendorDashboardPage() {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }

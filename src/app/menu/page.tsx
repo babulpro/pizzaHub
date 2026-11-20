@@ -657,9 +657,6 @@ export default function MenuPage() {
           </div>
         </div>
       )}
-
-      {/* Global Footer */}
-      <Footer />
     </div>
   );
 }
