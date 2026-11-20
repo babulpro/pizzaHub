@@ -10,7 +10,6 @@ import {
   AuthShell,
   Divider,
   PasswordInput,
-  RolePicker,
   SocialButtons,
   SubmitButton,
   inputClasses,
@@ -125,14 +124,7 @@ export default function SignInPage() {
             <span className="font-semibold text-amber-400">⚡ 1-Click Demo Logins:</span>
             <span className="text-zinc-500">Auto-fills test account</span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => fillDemoAccount("admin@pizzahub.com", "12345678")}
-              className="rounded-lg border border-red-500/30 bg-red-500/10 py-1.5 px-2 text-[11px] font-bold text-red-300 hover:bg-red-500/20 transition text-center cursor-pointer"
-            >
-              👑 Admin
-            </button>
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => fillDemoAccount("marco@fornonapoli.com", "12345678", "vendor")}
@@ -152,8 +144,6 @@ export default function SignInPage() {
 
         <form onSubmit={onSubmit} className="space-y-5" noValidate={false}>
           <AuthAlert message={error} />
-
-          <RolePicker value={role} onChange={setRole} />
 
           <div>
             <label htmlFor="email" className={labelClasses}>

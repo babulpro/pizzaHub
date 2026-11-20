@@ -50,12 +50,15 @@ export default function SignUpPage() {
     setConfirmError(null);
     setLoading(true);
 
+    // Enforce public registration roles: admin can NEVER be self-assigned
+    const safeRole: "customer" | "vendor" = role === "vendor" ? "vendor" : "customer";
+
     const { error: authError } = await signUp.email({
       name: name.trim(),
       email: email.trim(),
       password,
-      role,
-      ...(role === "vendor" && businessName ? { businessName: businessName.trim() } : {}),
+      role: safeRole,
+      ...(safeRole === "vendor" && businessName ? { businessName: businessName.trim() } : {}),
       callbackURL: "/",
     });
 
@@ -71,8 +74,8 @@ export default function SignUpPage() {
               name: name.trim(),
               email: email.trim(),
               password,
-              role,
-              businessName: role === "vendor" ? businessName?.trim() : undefined,
+              role: safeRole,
+              businessName: safeRole === "vendor" ? businessName?.trim() : undefined,
             }),
           }
         );
