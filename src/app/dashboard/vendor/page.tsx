@@ -127,19 +127,33 @@ export default function VendorDashboardPage() {
       // 1. Fetch vendor's menu items & quota
       const itemsRes = await api.get<VendorMenuItem[]>("/menu/vendor/my-items");
       if (itemsRes.success) {
-        if (Array.isArray(itemsRes.data)) {
-          setItems(itemsRes.data);
-        }
-        if (itemsRes.plan) {
-          setQuota({
-            plan: itemsRes.plan as "free" | "premium",
-            activeCount: Number(itemsRes.activeCount) || 0,
-            limit: Number(itemsRes.limit) || 3,
-            remaining: Number(itemsRes.remaining) || 0,
-            canAddMore: Boolean(itemsRes.canAddMore),
-            isPremium: Boolean(itemsRes.isPremium),
-          });
-        }
+        const fetchedItems = Array.isArray(itemsRes.data) ? itemsRes.data : [];
+        setItems(fetchedItems);
+
+        // Count approved/pending items as active
+        const activeItems = fetchedItems.filter(
+          (i: VendorMenuItem) => i.status === "approved" || i.status === "pending"
+        );
+
+        const quotaObj = (itemsRes.quota || itemsRes) as Partial<QuotaDetails> | undefined;
+        const isPrem = Boolean(quotaObj?.isPremium || quotaObj?.plan === "premium");
+        const activeCount =
+          typeof quotaObj?.activeCount === "number"
+            ? quotaObj.activeCount
+            : activeItems.length;
+
+        const limit = isPrem ? 9999 : 3;
+        const remaining = isPrem ? 9999 : Math.max(0, 3 - activeCount);
+        const canAddMore = isPrem || activeCount < 3;
+
+        setQuota({
+          plan: isPrem ? "premium" : "free",
+          activeCount,
+          limit,
+          remaining,
+          canAddMore,
+          isPremium: isPrem,
+        });
       }
 
       // 2. Fetch incoming orders for this kitchen
@@ -226,13 +240,26 @@ export default function VendorDashboardPage() {
     }
   };
 
+  // Open Add Pizza modal or redirect to subscription page if free limit reached
+  const handleAddPizzaClick = () => {
+    if (!quota.isPremium && quota.activeCount >= 3) {
+      router.push("/dashboard/vendor/subscription");
+      return;
+    }
+    setIsAddModalOpen(true);
+  };
+
   // Handle Add Item Submission (Cloudinary Upload -> POST /api/menu)
   const handleCreatePizza = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError(null);
 
     if (!quota.isPremium && quota.activeCount >= 3) {
-      setModalError("Free tier allows up to 3 pizzas. Please upgrade to Gold Premium Kitchen to publish unlimited menu items!");
+      setModalError("Free tier limit (3 pizzas) reached. Redirecting to subscription page...");
+      setTimeout(() => {
+        setIsAddModalOpen(false);
+        router.push("/dashboard/vendor/subscription");
+      }, 700);
       return;
     }
 
@@ -483,12 +510,19 @@ export default function VendorDashboardPage() {
 
             {/* Upgrade CTA */}
             {!quota.isPremium && (
-              <div className="shrink-0">
+              <div className="shrink-0 flex items-center gap-2.5 flex-wrap">
+                <Link
+                  href="/dashboard/vendor/subscription"
+                  className="flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs font-bold text-amber-400 hover:bg-amber-500/20 transition"
+                >
+                  <span>📋</span>
+                  <span>Subscription Plans</span>
+                </Link>
                 <button
                   type="button"
                   onClick={handleUpgradeToPremium}
                   disabled={isUpgrading}
-                  className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3.5 text-xs font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3.5 text-xs font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isUpgrading ? (
                     <>
@@ -498,7 +532,7 @@ export default function VendorDashboardPage() {
                   ) : (
                     <>
                       <span>★</span>
-                      <span>Upgrade to Premium ($29.99/mo)</span>
+                      <span>Upgrade to Premium ($29.00/mo)</span>
                     </>
                   )}
                 </button>
@@ -543,21 +577,26 @@ export default function VendorDashboardPage() {
               {!quota.isPremium && quota.activeCount >= 3 ? (
                 <button
                   type="button"
-                  onClick={handleUpgradeToPremium}
-                  disabled={isUpgrading}
+                  onClick={() => router.push("/dashboard/vendor/subscription")}
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
                 >
                   <span>★</span>
-                  <span>Free Limit (3/3) Reached — Upgrade to Premium</span>
+                  <span>+ Add New Pizza (Free Limit Reached — Go to Subscription)</span>
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={handleAddPizzaClick}
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-500/20 transition hover:brightness-110 active:scale-95 cursor-pointer"
                 >
                   <span>+</span>
-                  <span>Add New Pizza ({3 - quota.activeCount} Free Remaining)</span>
+                  <span>
+                    Add New Pizza (
+                    {quota.isPremium
+                      ? "Unlimited"
+                      : `${Math.max(0, 3 - quota.activeCount)} Free Remaining`}
+                    )
+                  </span>
                 </button>
               )}
             </div>
@@ -583,8 +622,8 @@ export default function VendorDashboardPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400"
+                  onClick={handleAddPizzaClick}
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400 cursor-pointer"
                 >
                   + Add Your First Pizza
                 </button>
@@ -868,14 +907,24 @@ export default function VendorDashboardPage() {
                     You have published 3 of 3 allowed pizzas on the Free Starter tier. To upload additional pizzas, upgrade your kitchen to Gold Premium!
                   </p>
                 </div>
-                <div className="pt-2">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddModalOpen(false);
+                      router.push("/dashboard/vendor/subscription");
+                    }}
+                    className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
+                  >
+                    Go to Subscription Page →
+                  </button>
                   <button
                     type="button"
                     onClick={handleUpgradeToPremium}
                     disabled={isUpgrading}
-                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
+                    className="w-full sm:w-auto rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 text-xs font-bold text-zinc-200 hover:text-white transition cursor-pointer"
                   >
-                    {isUpgrading ? "Opening Stripe Checkout..." : "Upgrade to Premium Kitchen ($29.99/mo) →"}
+                    {isUpgrading ? "Opening Stripe..." : "Stripe Checkout ($29.00/mo)"}
                   </button>
                 </div>
               </div>

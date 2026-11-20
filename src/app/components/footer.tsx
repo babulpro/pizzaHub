@@ -178,19 +178,20 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#vendor-spotlight" className="transition hover:text-amber-400">
+                <Link href="/dashboard/vendor/subscription" className="transition hover:text-amber-400">
                   Free vs. Premium Kitchen
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#vendor-spotlight" className="transition hover:text-amber-400">
+                <Link href="/dashboard/vendor/subscription" className="transition hover:text-amber-400">
                   3-Item Quota Guidelines
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#vendor-spotlight" className="inline-flex items-center gap-1 font-semibold text-orange-400 transition hover:underline">
+                <Link href="/dashboard/vendor/subscription" className="inline-flex items-center gap-1 font-semibold text-orange-400 transition hover:underline">
                   <span>★ Gold Subscription</span>
-                </a>
+                  <span>→</span>
+                </Link>
               </li>
             </ul>
           </div>

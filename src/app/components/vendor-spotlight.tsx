@@ -146,10 +146,10 @@ export default function VendorSpotlight() {
 
             <div className="mt-8 pt-6 border-t border-amber-500/20">
               <Link
-                href={isVendor ? "/dashboard/vendor" : "/sign-up?role=vendor"}
+                href={isVendor ? "/dashboard/vendor/subscription" : "/sign-up?role=vendor"}
                 className="block w-full text-center rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
               >
-                {isVendor ? "Manage Subscription in Dashboard →" : "Partner & Get Premium →"}
+                {isVendor ? "Manage Subscription & Upgrade →" : "Partner & Get Premium →"}
               </Link>
             </div>
           </div>
