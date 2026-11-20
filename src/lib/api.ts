@@ -5,8 +5,17 @@
 
 import { authClient } from '@/lib/auth-client';
 
-const API_BASE_URL =
+const RAW_API_URL =
   process.env.NEXT_PUBLIC_API_URL || 'https://pizzaserver.vercel.app/api';
+
+/**
+ * In the browser, use '/api/proxy' to eliminate browser CORS blocks on any deployed Vercel domain.
+ * In SSR / server-side contexts, connect directly to the backend URL.
+ */
+const API_BASE_URL =
+  typeof window !== 'undefined'
+    ? '/api/proxy'
+    : RAW_API_URL;
 
 const TOKEN_KEY = 'pizzahub_auth_token';
 
