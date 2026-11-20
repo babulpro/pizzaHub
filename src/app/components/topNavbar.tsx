@@ -19,6 +19,7 @@ export default function TopNavbar() {
   // Dynamic Navigation Links based on role
   const navLinks = [
     { label: "Browse Menu", href: "/menu" },
+    { label: "🔥 Hot Deals", href: "/deals" },
     ...(userRole === "vendor"
       ? [
           { label: "Kitchen Dashboard", href: "/dashboard/vendor" },
@@ -29,7 +30,6 @@ export default function TopNavbar() {
           { label: "⚡ Admin Console", href: "/dashboard/admin" },
         ]
       : [
-          { label: "Hot Deals", href: "/#deals" },
           { label: "Track Orders", href: "/dashboard/customer" },
           { label: "For Pizzerias", href: "/sign-up?role=vendor" },
         ]),

@@ -153,7 +153,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/menu" className="inline-flex items-center gap-1 font-semibold text-amber-400 transition hover:underline">
+                <Link href="/deals" className="inline-flex items-center gap-1 font-semibold text-amber-400 transition hover:text-amber-300">
+                  <span>🔥 Hot Deals & Promo Codes</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/menu" className="inline-flex items-center gap-1 font-semibold text-zinc-300 transition hover:text-white">
                   <span>Order Now</span>
                   <span>→</span>
                 </Link>
