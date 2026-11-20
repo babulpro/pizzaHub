@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { api, ensureApiToken } from "@/lib/api";
+import { ensureApiToken } from "@/lib/api";
+import { joinVipServerAction } from "@/app/actions/vip";
 import PizzaHubLogo from "./pizzahub-logo";
 
 interface PolicyModalInfo {
@@ -94,16 +95,21 @@ export default function Footer() {
 
     setLoading(true);
     try {
-      await ensureApiToken();
-      const res = await api.post<{ message?: string; alreadyJoined?: boolean }>("/vip/join", {
-        email: emailToSubmit,
-      });
+      const token = await ensureApiToken();
+      if (!token) {
+        setAuthRequired(true);
+        setLoading(false);
+        return;
+      }
+
+      // Next.js Server Action for VIP Club Mutation & Revalidation
+      const res = await joinVipServerAction(emailToSubmit, token);
 
       if (res.success) {
         setSubscribed(true);
         setMessage(res.message || "Welcome to the PizzaHub VIP Club!");
       } else {
-        setMessage(res.message || "Could not join VIP Club. Please try again.");
+        setMessage(res.error || "Could not join VIP Club. Please try again.");
       }
     } catch (err: unknown) {
       setMessage(err instanceof Error ? err.message : "Error joining VIP club.");

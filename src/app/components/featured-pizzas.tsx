@@ -25,14 +25,18 @@ interface PizzaItem {
   };
 }
 
-export default function FeaturedPizzas() {
+export default function FeaturedPizzas({
+  initialPizzas = [],
+}: {
+  initialPizzas?: PizzaItem[];
+}) {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
 
-  // Real live pizzas fetched directly from the database - NO DEMO DATA
-  const [pizzas, setPizzas] = useState<PizzaItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Real live pizzas fetched from the server or revalidated
+  const [pizzas, setPizzas] = useState<PizzaItem[]>(initialPizzas);
+  const [loading, setLoading] = useState(initialPizzas.length === 0);
   const [authPromptItem, setAuthPromptItem] = useState<PizzaItem | null>(null);
 
   const handleOrderClick = (pizza: PizzaItem) => {
@@ -44,15 +48,21 @@ export default function FeaturedPizzas() {
   };
 
   useEffect(() => {
+    // If we already have pizzas from server-side rendering, skip initial client fetch
+    if (initialPizzas && initialPizzas.length > 0) {
+      setPizzas(initialPizzas);
+      setLoading(false);
+      return;
+    }
+
     let isMounted = true;
     setLoading(true);
 
     api
-      .get<PizzaItem[]>("/menu")
+      .get<PizzaItem[]>("/menu?sortBy=featured")
       .then((res) => {
         if (isMounted) {
           if (res.success && Array.isArray(res.data)) {
-            // Display real live vendor pizzas (up to 4 items on home page)
             setPizzas(res.data.slice(0, 4));
           } else {
             setPizzas([]);
@@ -69,7 +79,7 @@ export default function FeaturedPizzas() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialPizzas]);
 
   return (
     <section id="featured-menu" className="relative py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-gradient-to-b from-[#0c0c0e] via-[#101014] to-[#0c0c0e]">
