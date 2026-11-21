@@ -1,27 +1,28 @@
 /**
  * PizzaHub Server-Side Data Fetching Layer (Next.js App Router)
  * Follows modern React Server Component principles:
- * - Direct server-to-server calls (eliminates browser CORS & network blips)
+ * - Direct server-to-server calls with fast timeout
+ * - Instant MongoDB fallback so pages NEVER fail, crash, or show empty states
  * - Automatic Next.js cache revalidation
- * - Graceful fallback so pages never crash on network timeouts
  */
 
 import { MenuItem } from "@/app/menu/page-client";
+import {
+  getMenuItemsFromDb,
+  getMenuItemByIdFromDb,
+  MenuFilterParams,
+} from "./menu-service";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "https://pizzaserver.vercel.app/api";
 
-export interface MenuFetchParams {
-  category?: string;
-  location?: string;
-  search?: string;
-  sortBy?: string;
+export interface MenuFetchParams extends MenuFilterParams {
   spicy?: string;
   veg?: string;
 }
 
 /**
- * Fetch menu items on the server with Next.js ISR (Incremental Static Regeneration)
+ * Fetch menu items on the server with Next.js ISR and instant DB fallback
  */
 export async function getServerMenuItems(
   params?: MenuFetchParams
@@ -40,21 +41,28 @@ export async function getServerMenuItems(
     const queryStr = searchParams.toString() ? `?${searchParams.toString()}` : "";
     const url = `${API_BASE}/menu${queryStr}`;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
     const res = await fetch(url, {
-      next: { revalidate: 30, tags: ["menu"] }, // Revalidate every 30 seconds
-    });
+      signal: controller.signal,
+      next: { revalidate: 30, tags: ["menu"] },
+    }).catch(() => null);
 
-    if (!res.ok) {
-      console.warn(`[Server Fetch] /menu returned status ${res.status}`);
-      return [];
+    clearTimeout(timeoutId);
+
+    if (res && res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json && Array.isArray(json.data) && json.data.length > 0) {
+        return json.data;
+      }
     }
-
-    const json = await res.json();
-    return Array.isArray(json.data) ? json.data : [];
   } catch (err) {
-    console.error("[Server Fetch Error] getServerMenuItems:", err);
-    return [];
+    console.warn("[Server Fetch] Remote /menu timed out or failed, falling back to direct DB:", err);
   }
+
+  // Resilient fallback directly from MongoDB
+  return getMenuItemsFromDb(params);
 }
 
 /**
@@ -64,21 +72,34 @@ export async function getServerMenuItemById(
   id: string
 ): Promise<MenuItem | null> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
     const res = await fetch(`${API_BASE}/menu/${id}`, {
+      signal: controller.signal,
       next: { revalidate: 30, tags: [`menu-${id}`] },
-    });
+    }).catch(() => null);
 
-    if (!res.ok) {
-      console.warn(`[Server Fetch] /menu/${id} returned status ${res.status}`);
-      return null;
+    clearTimeout(timeoutId);
+
+    if (res && res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json && json.data) {
+        if (!json.data.vendor && json.data.vendorId) {
+          const dbItem = await getMenuItemByIdFromDb(id).catch(() => null);
+          if (dbItem?.vendor) {
+            json.data.vendor = dbItem.vendor;
+          }
+        }
+        return json.data;
+      }
     }
-
-    const json = await res.json();
-    return json.data || null;
   } catch (err) {
-    console.error(`[Server Fetch Error] getServerMenuItemById (${id}):`, err);
-    return null;
+    console.warn(`[Server Fetch] Remote /menu/${id} failed, falling back to direct DB:`, err);
   }
+
+  // Resilient fallback directly from MongoDB
+  return getMenuItemByIdFromDb(id);
 }
 
 /**
@@ -86,15 +107,27 @@ export async function getServerMenuItemById(
  */
 export async function getServerFeaturedPizzas(): Promise<MenuItem[]> {
   try {
-    const res = await fetch(`${API_BASE}/menu?sortBy=featured`, {
-      next: { revalidate: 30, tags: ["featured-pizzas"] },
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-    if (!res.ok) return [];
-    const json = await res.json();
-    return Array.isArray(json.data) ? json.data.slice(0, 4) : [];
+    const res = await fetch(`${API_BASE}/menu?sortBy=featured`, {
+      signal: controller.signal,
+      next: { revalidate: 30, tags: ["featured-pizzas"] },
+    }).catch(() => null);
+
+    clearTimeout(timeoutId);
+
+    if (res && res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json && Array.isArray(json.data) && json.data.length > 0) {
+        return json.data.slice(0, 4);
+      }
+    }
   } catch (err) {
-    console.error("[Server Fetch Error] getServerFeaturedPizzas:", err);
-    return [];
+    console.warn("[Server Fetch] Remote featured pizzas failed, falling back to direct DB:", err);
   }
+
+  // Direct MongoDB fallback for home page
+  const dbItems = await getMenuItemsFromDb({ sortBy: "featured" });
+  return dbItems.slice(0, 4);
 }

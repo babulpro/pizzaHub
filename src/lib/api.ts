@@ -98,7 +98,11 @@ export async function apiFetch<T = unknown>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   let token = getStoredToken();
-  if (!token && typeof window !== 'undefined') {
+  const isPublicGet =
+    (!options.method || options.method === 'GET') &&
+    (endpoint.startsWith('/menu') || endpoint.startsWith('menu'));
+
+  if (!token && !isPublicGet && typeof window !== 'undefined') {
     token = await ensureApiToken();
   }
 

@@ -35,18 +35,18 @@ const TESTIMONIALS = [
 
 export default function Testimonials() {
   return (
-    <section id="reviews" className="relative py-20 px-4 sm:px-6 lg:px-8 bg-[#0c0c0e]">
+    <section id="reviews" className="relative py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#0c0c0e] transition-colors duration-200">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-400 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-400 backdrop-blur-md shadow-xs">
             <span>⭐</span>
             <span>VERIFIED FOODIE COMMUNITY</span>
           </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="font-artisan mt-4 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl md:text-5xl">
             Loved By Pizza Connoisseurs
           </h2>
-          <p className="mt-3 max-w-2xl text-base text-zinc-400 sm:text-lg">
+          <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             Hear from New York foodies, critics, and artisan pizzaiolos who trust PizzaHub every single week.
           </p>
         </div>
@@ -56,33 +56,33 @@ export default function Testimonials() {
           {TESTIMONIALS.map((t, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:bg-zinc-900/70"
+              className="flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-6 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-lg dark:hover:bg-zinc-900/70"
             >
               <div>
                 {/* 5 Stars */}
-                <div className="flex items-center gap-1 text-amber-400 text-sm">
+                <div className="flex items-center gap-1 text-amber-500 text-sm">
                   {Array.from({ length: t.rating }).map((_, i) => (
                     <span key={i}>★</span>
                   ))}
                 </div>
 
                 {/* Quote */}
-                <p className="mt-4 text-sm leading-relaxed text-zinc-300 italic">
+                <p className="mt-4 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 italic">
                   &ldquo;{t.quote}&rdquo;
                 </p>
 
                 {/* Favorite Tag */}
-                <div className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-zinc-800/80 px-2.5 py-1 text-[11px] text-zinc-400">
-                  <span className="text-amber-400">🍕</span>
-                  <span className="truncate max-w-[200px] font-medium text-zinc-300">
+                <div className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800/80 px-2.5 py-1 text-[11px] text-zinc-600 dark:text-zinc-400">
+                  <span className="text-amber-500">🍕</span>
+                  <span className="truncate max-w-[200px] font-medium text-zinc-800 dark:text-zinc-300">
                     {t.favoritePizza}
                   </span>
                 </div>
               </div>
 
               {/* Reviewer Bio */}
-              <div className="mt-6 flex items-center gap-3 border-t border-zinc-800/80 pt-4">
-                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-zinc-700">
+              <div className="mt-6 flex items-center gap-3 border-t border-zinc-200 dark:border-zinc-800/80 pt-4">
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-zinc-300 dark:border-zinc-700">
                   <Image
                     src={t.avatar}
                     alt={t.author}
@@ -92,8 +92,8 @@ export default function Testimonials() {
                   />
                 </div>
                 <div className="flex flex-col text-left truncate">
-                  <span className="text-sm font-bold text-white truncate">{t.author}</span>
-                  <span className="text-xs text-zinc-400 truncate">
+                  <span className="text-sm font-bold text-zinc-900 dark:text-white truncate">{t.author}</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                     {t.role} • {t.location}
                   </span>
                 </div>

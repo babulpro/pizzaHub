@@ -111,8 +111,8 @@ export function RolePicker({
               key={option.value}
               className={`group flex cursor-pointer flex-col gap-1 rounded-xl border p-3.5 text-sm transition-all outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                 isSelected
-                  ? "border-amber-500/80 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-transparent text-white shadow-sm shadow-amber-500/10"
-                  : "border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-850"
+                  ? "border-amber-500 bg-amber-50/80 dark:border-amber-500/80 dark:bg-gradient-to-br dark:from-amber-500/15 dark:via-orange-500/10 dark:to-transparent text-amber-950 dark:text-white shadow-sm"
+                  : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-850"
               }`}
             >
               <input
@@ -185,7 +185,7 @@ export function SocialButtons({
   };
 
   const base =
-    "flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2.5 text-sm font-medium text-zinc-200 outline-none transition hover:border-zinc-700 hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50 shadow-xs";
+    "flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-zinc-800 dark:text-zinc-200 outline-none transition hover:bg-zinc-50 dark:hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50 shadow-xs";
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

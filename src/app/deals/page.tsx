@@ -165,7 +165,7 @@ export default function DealsPage() {
           </div>
 
           {/* Heading */}
-          <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="font-artisan mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Sizzle & Save With
             <br />
             <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-500 bg-clip-text text-transparent">

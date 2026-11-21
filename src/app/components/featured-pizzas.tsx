@@ -91,18 +91,21 @@ export default function FeaturedPizzas({
   }, [initialPizzas]);
 
   return (
-    <section id="featured-menu" className="relative py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-gradient-to-b from-[#0c0c0e] via-[#101014] to-[#0c0c0e]">
+    <section
+      id="featured-menu"
+      className="relative py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-200 dark:border-zinc-900 bg-gradient-to-b from-white via-zinc-50 to-white dark:from-[#0c0c0e] dark:via-[#101014] dark:to-[#0c0c0e] transition-colors duration-200"
+    >
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-400 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-400 backdrop-blur-md shadow-xs">
             <span>🍕</span>
             <span>HANDCRAFTED SIGNATURE PIES</span>
           </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="font-artisan mt-4 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl md:text-5xl">
             Artisan Pizzas Fresh Out of The Oven
           </h2>
-          <p className="mt-3 max-w-2xl text-base text-zinc-400 sm:text-lg">
+          <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             Fermented for 72 hours, blistered at 900°F in authentic wood-fired ovens, and topped with D.O.P. Italian ingredients.
           </p>
         </div>
@@ -113,14 +116,14 @@ export default function FeaturedPizzas({
             {[1, 2, 3, 4].map((n) => (
               <div
                 key={n}
-                className="animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4"
+                className="animate-pulse rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-4"
               >
-                <div className="h-44 w-full rounded-xl bg-zinc-800/60" />
-                <div className="mt-4 h-4 w-3/4 rounded bg-zinc-800/80" />
-                <div className="mt-2 h-3 w-1/2 rounded bg-zinc-850" />
-                <div className="mt-6 flex items-center justify-between border-t border-zinc-800/60 pt-3">
-                  <div className="h-5 w-16 rounded bg-zinc-800" />
-                  <div className="h-8 w-20 rounded-xl bg-zinc-800" />
+                <div className="h-44 w-full rounded-xl bg-zinc-200 dark:bg-zinc-800/60" />
+                <div className="mt-4 h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-800/80" />
+                <div className="mt-2 h-3 w-1/2 rounded bg-zinc-100 dark:bg-zinc-850" />
+                <div className="mt-6 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 pt-3">
+                  <div className="h-5 w-16 rounded bg-zinc-200 dark:bg-zinc-800" />
+                  <div className="h-8 w-20 rounded-xl bg-zinc-200 dark:bg-zinc-800" />
                 </div>
               </div>
             ))}
@@ -129,16 +132,16 @@ export default function FeaturedPizzas({
 
         {/* Empty State when no pizzas in database */}
         {!loading && pizzas.length === 0 && (
-          <div className="mt-14 rounded-3xl border border-dashed border-zinc-800 p-12 text-center bg-zinc-950/40 max-w-lg mx-auto">
+          <div className="mt-14 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800 p-12 text-center bg-zinc-50 dark:bg-zinc-950/40 max-w-lg mx-auto">
             <span className="text-4xl">🍕</span>
-            <h3 className="mt-4 text-base font-bold text-white">No Live Pizzas in the Oven Yet</h3>
-            <p className="mt-1 text-xs text-zinc-400">
+            <h3 className="mt-4 text-base font-bold text-zinc-900 dark:text-white">No Live Pizzas in the Oven Yet</h3>
+            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
               Artisan pizzerias are currently preparing today&apos;s fresh dough. Visit our menu or sign in as a vendor to publish your pizza!
             </p>
             <div className="mt-6 flex items-center justify-center gap-3">
               <Link
                 href="/menu"
-                className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400"
+                className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-400 shadow-md"
               >
                 Explore Menu
               </Link>
@@ -160,10 +163,10 @@ export default function FeaturedPizzas({
               return (
                 <div
                   key={pizza._id}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/60 shadow-lg transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 shadow-md dark:shadow-lg transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
                 >
                   {/* Pizza Image Frame */}
-                  <Link href={`/menu/${pizza._id}`} className="relative h-48 w-full overflow-hidden bg-zinc-950 block">
+                  <Link href={`/menu/${pizza._id}`} className="relative h-48 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-950 block">
                     <Image
                       src={imageSrc}
                       alt={pizza.itemName}
@@ -171,11 +174,11 @@ export default function FeaturedPizzas({
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                     {/* Category Pill */}
                     <div className="absolute top-3 left-3">
-                      <span className="rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-semibold text-zinc-200 backdrop-blur-md border border-white/10">
+                      <span className="rounded-full bg-white/90 dark:bg-black/70 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 dark:text-zinc-200 backdrop-blur-md border border-zinc-200 dark:border-white/10 shadow-xs">
                         {pizza.category}
                       </span>
                     </div>
@@ -203,7 +206,7 @@ export default function FeaturedPizzas({
                     {/* Premium Badge */}
                     {Boolean(pizza.isPremium) && (
                       <div className="absolute bottom-3 left-3">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-400/50 px-2 py-0.5 text-[10px] font-bold text-amber-300 backdrop-blur-md">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/90 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-400/50 px-2 py-0.5 text-[10px] font-bold text-white dark:text-amber-300 backdrop-blur-md shadow-xs">
                           ⭐ Gold Kitchen
                         </span>
                       </div>
@@ -213,10 +216,10 @@ export default function FeaturedPizzas({
                   {/* Card Details */}
                   <div className="flex flex-1 flex-col p-5">
                     {/* Location & Prep */}
-                    <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
+                    <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-2">
                       <span className="truncate max-w-[65%]">📍 {pizza.location}</span>
                       {pizza.prepTime && (
-                        <span className="font-medium text-amber-400/90 shrink-0">
+                        <span className="font-semibold text-amber-700 dark:text-amber-400/90 shrink-0">
                           ⏱️ {pizza.prepTime}
                         </span>
                       )}
@@ -224,33 +227,33 @@ export default function FeaturedPizzas({
 
                     {/* Pizza Name */}
                     <Link href={`/menu/${pizza._id}`} className="block">
-                      <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-1">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
                         {pizza.itemName}
                       </h3>
                     </Link>
 
                     {/* Description */}
-                    <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 line-clamp-2 flex-1">
+                    <p className="mt-1.5 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 line-clamp-2 flex-1">
                       {pizza.description}
                     </p>
 
                     {/* Pizzeria Name */}
                     {pizza.vendor?.businessName && (
-                      <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-800/80 pt-2 text-[11px] text-zinc-400">
-                        <span className="text-zinc-500">By</span>
-                        <span className="font-semibold text-zinc-300 truncate">
+                      <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-100 dark:border-zinc-800/80 pt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                        <span>By</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-300 truncate">
                           {pizza.vendor.businessName}
                         </span>
                       </div>
                     )}
 
                     {/* Price & Action */}
-                    <div className="mt-4 flex items-center justify-between border-t border-zinc-800/80 pt-3">
+                    <div className="mt-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/80 pt-3">
                       <div>
-                        <span className="text-[10px] uppercase font-semibold text-zinc-500 block">
+                        <span className="text-[10px] uppercase font-semibold text-zinc-400 dark:text-zinc-500 block">
                           Price
                         </span>
-                        <span className="text-lg font-black text-white">
+                        <span className="text-lg font-black text-zinc-900 dark:text-white">
                           ${pizza.price.toFixed(2)}
                         </span>
                       </div>
@@ -258,7 +261,7 @@ export default function FeaturedPizzas({
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/menu/${pizza._id}`}
-                          className="rounded-xl border border-zinc-750 bg-zinc-800/80 px-2.5 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-700 hover:text-white"
+                          className="rounded-xl border border-zinc-200 dark:border-zinc-750 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 px-2.5 py-1.5 text-xs font-semibold text-zinc-800 dark:text-zinc-300 transition"
                         >
                           Details
                         </Link>
@@ -283,7 +286,7 @@ export default function FeaturedPizzas({
         <div className="mt-12 flex flex-col items-center justify-center gap-3 text-center sm:flex-row">
           <Link
             href="/menu"
-            className="group inline-flex items-center gap-2.5 rounded-xl bg-zinc-900 border border-zinc-700/80 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:border-amber-500 hover:bg-zinc-850 hover:text-amber-400"
+            className="group inline-flex items-center gap-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700/80 px-6 py-3.5 text-sm font-bold text-zinc-900 dark:text-white shadow-md transition-all hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
           >
             <span>Browse Full Menu & All 15+ Artisan Pizzas</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -294,24 +297,24 @@ export default function FeaturedPizzas({
         </div>
       </div>
 
-      {/* Sign In Required Alert Modal (Matching Menu Page Experience) */}
+      {/* Sign In Required Alert Modal */}
       {authPromptItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-[#16161a] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16161a] p-6 shadow-2xl">
             {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-zinc-800 pb-4">
+            <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+                <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                   {authPromptItem.category}
                 </span>
-                <h3 className="text-lg font-bold text-white mt-0.5">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
                   Order {authPromptItem.itemName}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setAuthPromptItem(null)}
-                className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
               >
                 ✕
               </button>
@@ -319,10 +322,10 @@ export default function FeaturedPizzas({
 
             {/* Modal Body */}
             <div className="py-6 text-center space-y-4">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 text-3xl text-amber-400 border border-amber-500/30">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 text-3xl text-amber-500 border border-amber-500/30">
                 🍕
               </div>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">
                 Please sign in to place your order and get live kitchen updates.
               </p>
               <div className="flex flex-col gap-2.5 pt-2">
@@ -334,7 +337,7 @@ export default function FeaturedPizzas({
                 </Link>
                 <Link
                   href={`/sign-up?callbackUrl=/menu/${authPromptItem._id}`}
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-850 py-2.5 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800 hover:text-white text-center"
+                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-300 transition hover:bg-zinc-200 dark:hover:bg-zinc-800 text-center"
                 >
                   Create a New Account
                 </Link>

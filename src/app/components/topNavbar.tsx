@@ -124,7 +124,7 @@ export default function TopNavbar() {
                   {(user.name ?? user.email ?? "P").charAt(0).toUpperCase()}
                 </div>
 
-                <span className="hidden text-xs font-medium text-zinc-200 sm:inline max-w-[110px] truncate">
+                <span className="hidden text-xs font-semibold text-zinc-800 dark:text-zinc-200 sm:inline max-w-[110px] truncate">
                   {user.name || user.email?.split("@")[0]}
                 </span>
 

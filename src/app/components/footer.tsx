@@ -324,31 +324,31 @@ export default function Footer() {
         </div>
 
         {/* Newsletter / VIP Club Subscription Strip */}
-        <div id="vip" className="mt-12 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-md">
+        <div id="vip" className="mt-12 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-6 shadow-sm dark:shadow-md backdrop-blur-md">
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
                   Exclusive Community
                 </span>
                 <span className="text-[11px] text-zinc-500">• 100% Free Forever</span>
               </div>
-              <h5 className="text-base font-bold text-white mt-1">
+              <h5 className="font-artisan text-lg font-bold text-zinc-900 dark:text-white mt-1">
                 Join the PizzaHub VIP Club 🍕
               </h5>
-              <p className="mt-1 text-xs text-zinc-400">
+              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                 Receive secret weekend drops, discount codes, and invitations to artisan pop-up tastings.
               </p>
             </div>
 
             {subscribed ? (
-              <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-4 py-2.5 text-xs font-semibold text-emerald-400">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-4 py-2.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                 <span>✓</span>
                 <span>{message || "You're on the VIP Pizza List!"}</span>
               </div>
             ) : authRequired ? (
               <div className="flex flex-col sm:flex-row items-center gap-3">
-                <span className="text-xs text-amber-400 font-medium">
+                <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                   🔒 You must be signed in to join the VIP Club.
                 </span>
                 <Link
@@ -360,7 +360,7 @@ export default function Footer() {
                 <button
                   type="button"
                   onClick={() => setAuthRequired(false)}
-                  className="text-xs text-zinc-500 hover:text-white cursor-pointer"
+                  className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -373,7 +373,7 @@ export default function Footer() {
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
+                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
                 />
                 <button
                   type="submit"

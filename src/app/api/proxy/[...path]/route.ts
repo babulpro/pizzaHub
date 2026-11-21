@@ -6,6 +6,10 @@ import {
   getVipStatusService,
   parseJwtPayload,
 } from "@/lib/vip-service";
+import {
+  getMenuItemsFromDb,
+  getMenuItemByIdFromDb,
+} from "@/lib/menu-service";
 
 const TARGET_BASE =
   process.env.API_SERVER_URL ||
@@ -41,12 +45,59 @@ async function handleProxy(
       init.body = rawBody;
     }
 
-    const response = await fetch(targetUrl, init);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    init.signal = controller.signal;
 
-    // If the remote backend server returns 404 for VIP routes (e.g. if the backend
-    // on pizzaserver.vercel.app has not yet been redeployed), seamlessly handle
-    // the request with Next.js + MongoDB so the user experience is flawless.
-    if (response.status === 404 && subPath.startsWith("vip")) {
+    let response: Response | null = null;
+    try {
+      response = await fetch(targetUrl, init);
+    } catch (fetchErr) {
+      console.warn(`[Proxy] Remote fetch to ${targetUrl} timed out or failed:`, fetchErr);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    // Direct MongoDB fallback for /menu if remote backend is slow, down, or fails
+    if ((!response || !response.ok) && req.method === "GET") {
+      if (subPath === "menu") {
+        const category = req.nextUrl.searchParams.get("category") || undefined;
+        const location = req.nextUrl.searchParams.get("location") || undefined;
+        const search = req.nextUrl.searchParams.get("search") || undefined;
+        const sortBy = req.nextUrl.searchParams.get("sortBy") || undefined;
+        const dbItems = await getMenuItemsFromDb({ category, location, search, sortBy });
+        return NextResponse.json({ success: true, count: dbItems.length, data: dbItems });
+      }
+
+      if (subPath.startsWith("menu/")) {
+        const itemId = subPath.replace("menu/", "");
+        const dbItem = await getMenuItemByIdFromDb(itemId);
+        if (dbItem) {
+          return NextResponse.json({ success: true, data: dbItem });
+        }
+      }
+    }
+
+    // Enrich single menu item with vendor data if remote returned data without vendor
+    if (response && response.ok && req.method === "GET" && subPath.startsWith("menu/")) {
+      try {
+        const textData = await response.text();
+        const json = JSON.parse(textData);
+        if (json?.data && !json.data.vendor && json.data.vendorId) {
+          const itemId = subPath.replace("menu/", "");
+          const dbItem = await getMenuItemByIdFromDb(itemId);
+          if (dbItem?.vendor) {
+            json.data.vendor = dbItem.vendor;
+          }
+        }
+        return NextResponse.json(json);
+      } catch {
+        // fallback to standard stream
+      }
+    }
+
+    // If the remote backend server returns 404 or fails for VIP routes
+    if ((!response || response.status === 404) && subPath.startsWith("vip")) {
       const authHeader = auth || "";
 
       if (subPath === "vip/join" && req.method === "POST") {
@@ -80,6 +131,13 @@ async function handleProxy(
         );
         return NextResponse.json(result, { status: 200 });
       }
+    }
+
+    if (!response) {
+      return NextResponse.json(
+        { success: false, message: "Backend connection timed out" },
+        { status: 504 }
+      );
     }
 
     const textData = await response.text();

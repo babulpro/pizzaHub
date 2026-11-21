@@ -112,10 +112,63 @@ export default function MenuClient({
       if (res.success && Array.isArray(res.data)) {
         setItems(res.data);
       } else {
-        setError(res.message || "Failed to load menu items");
+        // Resilient fallback: filter initialItems in memory if API call fails
+        if (initialItems && initialItems.length > 0) {
+          let filtered = [...initialItems];
+          if (search.trim()) {
+            const q = search.trim().toLowerCase();
+            filtered = filtered.filter(
+              (i) =>
+                i.itemName.toLowerCase().includes(q) ||
+                i.description?.toLowerCase().includes(q)
+            );
+          }
+          if (selectedCategory !== "All") {
+            filtered = filtered.filter((i) => i.category === selectedCategory);
+          }
+          if (selectedLocation !== "all") {
+            filtered = filtered.filter((i) =>
+              i.location.toLowerCase().includes(selectedLocation.toLowerCase())
+            );
+          }
+          if (sortBy === "price_asc") {
+            filtered.sort((a, b) => a.price - b.price);
+          } else if (sortBy === "price_desc") {
+            filtered.sort((a, b) => b.price - a.price);
+          }
+          setItems(filtered);
+        } else {
+          setError(res.message || "Failed to load menu items");
+        }
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error connecting to server");
+      if (initialItems && initialItems.length > 0) {
+        let filtered = [...initialItems];
+        if (search.trim()) {
+          const q = search.trim().toLowerCase();
+          filtered = filtered.filter(
+            (i) =>
+              i.itemName.toLowerCase().includes(q) ||
+              i.description?.toLowerCase().includes(q)
+          );
+        }
+        if (selectedCategory !== "All") {
+          filtered = filtered.filter((i) => i.category === selectedCategory);
+        }
+        if (selectedLocation !== "all") {
+          filtered = filtered.filter((i) =>
+            i.location.toLowerCase().includes(selectedLocation.toLowerCase())
+          );
+        }
+        if (sortBy === "price_asc") {
+          filtered.sort((a, b) => a.price - b.price);
+        } else if (sortBy === "price_desc") {
+          filtered.sort((a, b) => b.price - a.price);
+        }
+        setItems(filtered);
+      } else {
+        setError(err instanceof Error ? err.message : "Error connecting to server");
+      }
     } finally {
       setLoading(false);
     }
@@ -227,7 +280,7 @@ export default function MenuClient({
               <span>Wood-Fired Pizzerias & Gourmet Crusts</span>
             </div>
 
-            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+            <h1 className="font-artisan text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
               Explore Our Artisan Pizza Menu
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-base">
