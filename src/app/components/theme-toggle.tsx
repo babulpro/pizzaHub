@@ -105,7 +105,7 @@ export default function ThemeToggle({ variant = "icon" }: ThemeToggleProps) {
       onClick={toggleTheme}
       title={theme === "dark" ? "Switch to Day Mode (Light)" : "Switch to Night Mode (Dark)"}
       aria-label={theme === "dark" ? "Switch to Day Mode" : "Switch to Night Mode"}
-      className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700/80 bg-zinc-100 dark:bg-zinc-850/80 text-sm shadow-xs transition hover:border-amber-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 active:scale-95"
+      className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700/80 bg-zinc-100 dark:bg-zinc-800 text-sm shadow-xs transition hover:border-amber-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95"
     >
       {theme === "dark" ? (
         <span className="text-amber-400" title="Switch to Day Mode">☀️</span>

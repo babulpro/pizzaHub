@@ -121,7 +121,7 @@ export default function PizzaHubLogo({
       {/* Wordmark */}
       <div className="flex flex-col">
         <div className="flex items-center tracking-tight">
-          <span className={`font-black text-white ${currentSize.text} drop-shadow-xs tracking-tight`}>
+          <span className={`font-black text-zinc-900 dark:text-white ${currentSize.text} drop-shadow-xs tracking-tight`}>
             Pizza
           </span>
           <span

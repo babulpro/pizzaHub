@@ -92,13 +92,13 @@ export default function TopNavbar() {
   };
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 w-full border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/90 dark:bg-[#121215]/90 backdrop-blur-md transition-all">
-      <header className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <nav className="fixed inset-x-0 top-0 z-50 w-full max-w-full border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/90 dark:bg-[#121215]/90 backdrop-blur-md transition-all">
+      <header className="mx-auto flex h-16 max-w-7xl w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Wonderful PizzaHub Logo */}
         <motion.div
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-3 cursor-pointer shrink-0"
         >
           <PizzaHubLogo size="md" withTagline={false} />
         </motion.div>
@@ -133,7 +133,7 @@ export default function TopNavbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMenuOpen((v) => !v)}
-                className="flex items-center gap-2.5 rounded-full border border-zinc-300 dark:border-zinc-700/80 bg-zinc-100 dark:bg-zinc-850 p-1 pr-3 text-left transition hover:border-amber-500/50 cursor-pointer"
+                className="flex items-center gap-2.5 rounded-full border border-zinc-300 dark:border-zinc-700/80 bg-zinc-100 dark:bg-zinc-800 p-1 pr-3 text-left transition hover:border-amber-500/50 cursor-pointer"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 to-red-600 text-xs font-bold text-white shadow-xs">
                   {user.name ? user.name.charAt(0).toUpperCase() : "U"}
@@ -291,13 +291,13 @@ export default function TopNavbar() {
         </div>
 
         {/* Right Mobile: ONLY the clean Hamburger Toggle button */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-2 shrink-0">
           <motion.button
             type="button"
             whileTap={{ scale: 0.92 }}
             aria-label="Toggle mobile navigation menu"
             onClick={() => setMobileNavOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-850 text-zinc-800 dark:text-zinc-200 transition hover:border-amber-500 cursor-pointer shadow-xs"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition hover:border-amber-500 cursor-pointer shadow-xs"
           >
             {mobileNavOpen ? (
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -323,7 +323,7 @@ export default function TopNavbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white/98 dark:bg-[#121215]/98 px-5 py-5 md:hidden backdrop-blur-xl shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto"
+            className="w-full max-w-full overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white/98 dark:bg-[#121215]/98 px-4 sm:px-5 py-4 sm:py-5 md:hidden backdrop-blur-xl shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto"
           >
             {/* 1. Mobile Navigation Links */}
             <div className="space-y-1 pb-4">
@@ -379,7 +379,7 @@ export default function TopNavbar() {
                     <Link
                       href={getDashboardLink()}
                       onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/80 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-750 transition text-center"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition text-center"
                     >
                       <span>⚡</span>
                       <span>Dashboard</span>
@@ -404,7 +404,7 @@ export default function TopNavbar() {
                     <Link
                       href="/sign-in"
                       onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-3 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition text-center"
+                      className="flex items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 py-3 text-xs font-bold text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 transition text-center shadow-xs"
                     >
                       Sign In
                     </Link>

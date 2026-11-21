@@ -45,7 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${playfairDisplay.variable} h-full scroll-smooth antialiased dark`}
+      className={`${plusJakartaSans.variable} ${playfairDisplay.variable} h-full scroll-smooth antialiased dark overflow-x-hidden max-w-full`}
     >
       <head>
         <meta name="color-scheme" content="light dark" />
@@ -63,10 +63,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col bg-[#0c0c0e] text-zinc-100 pt-16 transition-colors duration-200">
+      <body className="flex min-h-full flex-col bg-[#0c0c0e] text-zinc-100 pt-16 transition-colors duration-200 overflow-x-hidden max-w-full">
         <ToastProvider />
         <TopNavbar />
-        <main className="flex flex-1 flex-col">
+        <main className="flex flex-1 flex-col overflow-x-hidden max-w-full">
           {children}
         </main>
         <Footer />

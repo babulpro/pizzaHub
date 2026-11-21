@@ -148,7 +148,7 @@ export default function DealsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 transition-colors">
       
       {/* 1. Deals Hero Section */}
       <section className="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-24 border-b border-zinc-200 dark:border-zinc-850 bg-white/70 dark:bg-transparent backdrop-blur-md">

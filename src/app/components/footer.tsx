@@ -145,12 +145,12 @@ export default function Footer() {
             </p>
 
             {/* Live Operational Status */}
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-400">
-              <span className="relative flex h-2 w-2">
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-400 max-w-full">
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
               </span>
-              <span>All Pizzerias Live & Baking (900°F)</span>
+              <span className="truncate">All Pizzerias Live & Baking (900°F)</span>
             </div>
 
             {/* Social Icons */}
@@ -391,14 +391,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar: Copyright & Security */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-850 pt-8 text-xs text-zinc-500 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 dark:border-zinc-850 pt-8 text-xs text-zinc-500 text-center sm:text-left sm:flex-row">
           <p>© 2026 PizzaHub Inc. Handcrafted with passion. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-zinc-500">
             <span>🔒 256-Bit SSL Encrypted</span>
             <span>•</span>
             <span>Powered by Stripe</span>
-            <span>•</span>
-            <span>Delivery: Manhattan • Brooklyn • Queens</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="w-full sm:w-auto text-center">Delivery: Manhattan • Brooklyn • Queens</span>
           </div>
         </div>
       </div>

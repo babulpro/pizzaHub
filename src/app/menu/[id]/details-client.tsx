@@ -237,7 +237,7 @@ export default function PizzaDetailsClient({
   const totalPrice = (itemPrice * quantity).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 pb-24 transition-colors">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 pb-24 transition-colors">
       {/* Ambient Warm Oven Glow */}
       <motion.div
         animate={{
@@ -249,7 +249,7 @@ export default function PizzaDetailsClient({
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/15 via-orange-500/5 to-transparent blur-3xl dark:from-amber-500/10 dark:via-red-600/5"
+        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-full max-w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/15 via-orange-500/5 to-transparent blur-3xl dark:from-amber-500/10 dark:via-red-600/5"
       />
 
       {/* Breadcrumb Navigation */}

@@ -208,9 +208,9 @@ export default function MenuClient({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 pb-20 transition-colors">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 pb-20 transition-colors">
       {/* Top Ambient Glow */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/10 via-red-600/5 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[400px] w-full max-w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/10 via-red-600/5 to-transparent blur-3xl" />
 
       {/* Hero Header */}
       <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#121215]/60 pt-8 pb-10 sm:pt-10 sm:pb-12 backdrop-blur-md transition-colors">
@@ -314,7 +314,7 @@ export default function MenuClient({
           <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-t border-zinc-200 dark:border-zinc-850 pt-3.5">
             
             {/* Category Pills - Scrollable Carousel on Mobile */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 sm:mx-0 sm:px-0 py-0.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full py-0.5">
               {CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat;
                 return (
@@ -327,7 +327,7 @@ export default function MenuClient({
                     className={`whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-semibold shrink-0 transition cursor-pointer ${
                       isSelected
                         ? "bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 font-bold"
-                        : "bg-zinc-100 dark:bg-zinc-850 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
+                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white"
                     }`}
                   >
                     {cat}
@@ -541,7 +541,7 @@ export default function MenuClient({
 
                       {/* Vendor / Pizzeria Details */}
                       {pizza.vendor && (
-                        <div className="mt-3.5 flex items-center gap-2 border-t border-zinc-150 dark:border-zinc-850 pt-2.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        <div className="mt-3.5 flex items-center gap-2 border-t border-zinc-150 dark:border-zinc-800 pt-2.5 text-xs text-zinc-500 dark:text-zinc-400">
                           <span className="text-zinc-400 dark:text-zinc-500">By</span>
                           <span className="font-semibold text-zinc-800 dark:text-zinc-300 truncate">
                             {pizza.vendor.businessName || pizza.vendor.name}
