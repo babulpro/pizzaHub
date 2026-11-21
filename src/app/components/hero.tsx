@@ -177,9 +177,9 @@ export default function Hero() {
                   ease: "easeInOut",
                   delay: 0.4,
                 }}
-                className="absolute top-7 right-7 flex items-center gap-2 rounded-xl border border-amber-400/50 bg-white/95 text-amber-900 dark:border-amber-500/40 dark:bg-[#141417]/90 dark:text-amber-300 px-3.5 py-2 text-xs font-bold shadow-xl backdrop-blur-md"
+                className="absolute top-4 right-4 sm:top-7 sm:right-7 flex items-center gap-1.5 sm:gap-2 rounded-xl border border-amber-400/50 bg-white/95 text-amber-900 dark:border-amber-500/40 dark:bg-[#141417]/90 dark:text-amber-300 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold shadow-xl backdrop-blur-md"
               >
-                <span className="text-base">🔥</span>
+                <span className="text-sm sm:text-base">🔥</span>
                 <span>Fresh Out of Oven</span>
               </motion.div>
 
@@ -194,10 +194,10 @@ export default function Hero() {
                   ease: "easeInOut",
                   delay: 0.7,
                 }}
-                className="absolute bottom-7 left-7 flex items-center gap-2.5 rounded-xl border border-zinc-200/90 bg-white/95 text-zinc-900 dark:border-zinc-700/80 dark:bg-[#141417]/90 dark:text-white px-3.5 py-2 text-xs font-semibold shadow-xl backdrop-blur-md"
+                className="absolute bottom-4 left-4 right-4 sm:right-auto sm:bottom-7 sm:left-7 flex items-center gap-2 rounded-xl border border-zinc-200/90 bg-white/95 text-zinc-900 dark:border-zinc-700/80 dark:bg-[#141417]/90 dark:text-white px-3 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-semibold shadow-xl backdrop-blur-md"
               >
-                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                <span>San Marzano D.O.P. & Buffalo Mozzarella</span>
+                <span className="flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <span className="truncate">San Marzano D.O.P. & Buffalo Mozzarella</span>
               </motion.div>
 
             </motion.div>

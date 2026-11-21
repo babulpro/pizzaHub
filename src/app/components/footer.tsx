@@ -406,37 +406,37 @@ export default function Footer() {
       {/* Interactive Policy Modal (About / Privacy / Terms / Refunds / Allergens) */}
       {currentPolicy && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#141418] p-6 shadow-2xl">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] p-5 sm:p-6 shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/80 pb-4">
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl">{currentPolicy.icon}</span>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
                   {currentPolicy.title}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Content Body */}
-            <div className="mt-4 space-y-3 text-xs leading-relaxed text-zinc-300">
+            <div className="mt-4 space-y-3 text-xs leading-relaxed text-zinc-700 dark:text-zinc-300">
               {currentPolicy.content.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </div>
 
             {/* Close Button */}
-            <div className="mt-6 border-t border-zinc-800/80 pt-4 flex justify-end">
+            <div className="mt-6 border-t border-zinc-200 dark:border-zinc-800/80 pt-4 flex justify-end">
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
-                className="rounded-xl bg-zinc-800 px-5 py-2 text-xs font-semibold text-white transition hover:bg-zinc-700"
+                className="rounded-xl bg-amber-500 hover:bg-amber-400 dark:bg-zinc-800 dark:hover:bg-zinc-700 px-5 py-2 text-xs font-bold text-zinc-950 dark:text-white transition cursor-pointer"
               >
                 Got It
               </button>

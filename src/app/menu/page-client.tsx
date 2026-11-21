@@ -213,7 +213,7 @@ export default function MenuClient({
       <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/10 via-red-600/5 to-transparent blur-3xl" />
 
       {/* Hero Header */}
-      <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#121215]/60 pt-10 pb-12 backdrop-blur-md transition-colors">
+      <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#121215]/60 pt-8 pb-10 sm:pt-10 sm:pb-12 backdrop-blur-md transition-colors">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -222,15 +222,15 @@ export default function MenuClient({
             className="flex flex-col items-center text-center"
           >
             {/* Tagline Badge */}
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
-              <PizzaSliceIcon className="h-4 w-4" />
-              <span>Wood-Fired Pizzerias & Gourmet Crusts</span>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <PizzaSliceIcon className="h-4 w-4 shrink-0" />
+              <span className="truncate">Wood-Fired Pizzerias & Gourmet Crusts</span>
             </div>
 
-            <h1 className="font-artisan text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl">
+            <h1 className="font-artisan text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-4xl md:text-5xl">
               Explore Our Artisan Pizza Menu
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
+            <p className="mt-2.5 max-w-2xl text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-sm md:text-base">
               Freshly prepared with naturally fermented sourdough, San Marzano tomatoes, and baked at 900°F. Order direct from your favorite neighborhood kitchen.
             </p>
           </motion.div>
@@ -238,17 +238,17 @@ export default function MenuClient({
       </header>
 
       {/* Main Container */}
-      <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:pt-8 sm:px-6 lg:px-8">
         
         {/* Search & Filter Toolbar */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] p-4 sm:p-6 shadow-xl mb-8 space-y-4"
+          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] p-3.5 sm:p-6 shadow-xl mb-6 sm:mb-8 space-y-4"
         >
           {/* Row 1: Search & Dropdowns */}
-          <div className="grid grid-cols-1 gap-3.5 md:grid-cols-12">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
             
             {/* Search Input */}
             <div className="relative md:col-span-5">
@@ -310,11 +310,11 @@ export default function MenuClient({
 
           </div>
 
-          {/* Row 2: Category Pills & Dietary Toggles */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-850 pt-4">
+          {/* Row 2: Category Pills (Horizontal Swipe on Mobile) & Dietary Toggles */}
+          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-t border-zinc-200 dark:border-zinc-850 pt-3.5">
             
-            {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            {/* Category Pills - Scrollable Carousel on Mobile */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 sm:mx-0 sm:px-0 py-0.5">
               {CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat;
                 return (
@@ -324,7 +324,7 @@ export default function MenuClient({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition cursor-pointer ${
+                    className={`whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-semibold shrink-0 transition cursor-pointer ${
                       isSelected
                         ? "bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 font-bold"
                         : "bg-zinc-100 dark:bg-zinc-850 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
@@ -337,7 +337,7 @@ export default function MenuClient({
             </div>
 
             {/* Quick Dietary Filters */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 shrink-0">
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.04 }}
@@ -606,7 +606,7 @@ export default function MenuClient({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.92, opacity: 0, y: 15 }}
               transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-              className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16161a] p-6 shadow-2xl"
+              className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16161a] p-4.5 sm:p-6 shadow-2xl"
             >
               
               {/* Modal Header */}

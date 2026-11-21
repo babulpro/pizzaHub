@@ -21,24 +21,24 @@ export default function TopNavbar() {
 
   // Dynamic Navigation Links based on role
   const navLinks = [
-    { label: "Browse Menu", href: "/menu" },
-    { label: "🔥 Hot Deals", href: "/deals" },
+    { label: "Browse Menu", href: "/menu", icon: "🍕" },
+    { label: "Hot Deals", href: "/deals", icon: "🔥" },
     ...(userRole === "vendor"
       ? [
-          { label: "Kitchen Dashboard", href: "/dashboard/vendor" },
-          { label: "★ Subscription", href: "/dashboard/vendor/subscription" },
+          { label: "Kitchen Dashboard", href: "/dashboard/vendor", icon: "👨‍🍳" },
+          { label: "Subscription", href: "/dashboard/vendor/subscription", icon: "★" },
         ]
       : userRole === "admin"
       ? [
-          { label: "⚡ Admin Console", href: "/dashboard/admin" },
+          { label: "Admin Console", href: "/dashboard/admin", icon: "⚡" },
         ]
       : [
-          { label: "Track Orders", href: "/dashboard/customer" },
-          { label: "For Pizzerias", href: "/sign-up?role=vendor" },
+          { label: "Track Orders", href: "/dashboard/customer", icon: "📦" },
+          { label: "For Pizzerias", href: "/sign-up?role=vendor", icon: "🏪" },
         ]),
   ];
 
-  // Close the user dropdown when clicking outside
+  // Close the desktop user dropdown when clicking outside
   useEffect(() => {
     if (!menuOpen) return;
     const handleClick = (e: MouseEvent) => {
@@ -56,18 +56,18 @@ export default function TopNavbar() {
         return {
           label: isPremium ? "★ Gold Pizzeria" : "👨‍🍳 Pizzeria Partner",
           className: isPremium
-            ? "bg-amber-400/20 text-amber-300 border-amber-400/40"
-            : "bg-amber-500/20 text-amber-300 border-amber-500/30",
+            ? "bg-amber-400/20 text-amber-700 dark:text-amber-300 border-amber-400/40"
+            : "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30",
         };
       case "admin":
         return {
           label: "⚡ Super Admin",
-          className: "bg-red-500/20 text-red-300 border-red-500/30",
+          className: "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30",
         };
       default:
         return {
           label: "🍕 Artisan Foodie",
-          className: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+          className: "bg-orange-500/20 text-orange-700 dark:text-orange-300 border-orange-500/30",
         };
     }
   };
@@ -78,6 +78,17 @@ export default function TopNavbar() {
     if (userRole === "admin") return "/dashboard/admin";
     if (userRole === "vendor") return "/dashboard/vendor";
     return "/dashboard/customer";
+  };
+
+  const handleSignOut = async () => {
+    setMenuOpen(false);
+    setMobileNavOpen(false);
+    setStoredToken(null);
+    await signOut();
+    showToast.pizza(
+      "Logged Out",
+      "See you next pizza slice! Come back hungry! 👋"
+    );
   };
 
   return (
@@ -92,7 +103,7 @@ export default function TopNavbar() {
           <PizzaHubLogo size="md" withTagline={false} />
         </motion.div>
 
-        {/* Center: Desktop Navigation Links */}
+        {/* Center: Desktop Navigation Links (Hidden on Mobile) */}
         <ul className="hidden items-center gap-7 md:flex">
           {navLinks.map((link) => (
             <li key={link.label}>
@@ -106,16 +117,16 @@ export default function TopNavbar() {
           ))}
         </ul>
 
-        {/* Right: Actions, Theme Toggle & User Auth */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
+        {/* Right Desktop: Theme Toggle & User Auth (Hidden on Mobile) */}
+        <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle variant="icon" />
 
           {isPending ? (
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
             </div>
           ) : user ? (
-            /* Signed in User Menu */
+            /* Signed in User Menu (Desktop) */
             <div className="relative" ref={menuRef}>
               <motion.button
                 type="button"
@@ -153,7 +164,7 @@ export default function TopNavbar() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -6 }}
                     transition={{ duration: 0.18, ease: "easeOut" }}
-                    className="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-[#18181b] p-1.5 shadow-2xl shadow-black/30 dark:shadow-black/80 backdrop-blur-xl"
+                    className="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-[#18181b] p-1.5 shadow-2xl shadow-black/20 dark:shadow-black/80 backdrop-blur-xl"
                   >
                     {/* User Profile Snippet */}
                     <div className="border-b border-zinc-150 dark:border-zinc-800 px-3 py-2.5">
@@ -235,15 +246,7 @@ export default function TopNavbar() {
                       <button
                         type="button"
                         role="menuitem"
-                        onClick={async () => {
-                          setMenuOpen(false);
-                          setStoredToken(null);
-                          await signOut();
-                          showToast.pizza(
-                            "Logged Out",
-                            "See you next pizza slice! Come back hungry! 👋"
-                          );
-                        }}
+                        onClick={handleSignOut}
                         className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 transition hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
                       >
                         <svg
@@ -267,7 +270,7 @@ export default function TopNavbar() {
               </AnimatePresence>
             </div>
           ) : (
-            /* Signed out: Auth CTAs */
+            /* Signed out: Auth CTAs (Desktop) */
             <div className="flex items-center gap-3">
               <Link
                 href="/sign-in"
@@ -285,31 +288,34 @@ export default function TopNavbar() {
               </motion.div>
             </div>
           )}
+        </div>
 
-          {/* Mobile Menu Hamburger Button */}
-          <button
+        {/* Right Mobile: ONLY the clean Hamburger Toggle button */}
+        <div className="flex md:hidden items-center gap-2">
+          <motion.button
             type="button"
-            aria-label="Toggle mobile navigation"
+            whileTap={{ scale: 0.92 }}
+            aria-label="Toggle mobile navigation menu"
             onClick={() => setMobileNavOpen((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-300 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 transition hover:text-zinc-900 dark:hover:text-white md:hidden cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-850 text-zinc-800 dark:text-zinc-200 transition hover:border-amber-500 cursor-pointer shadow-xs"
           >
             {mobileNavOpen ? (
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             ) : (
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             )}
-          </button>
+          </motion.button>
         </div>
       </header>
 
-      {/* Mobile Menu Dropdown with AnimatePresence */}
+      {/* Mobile Drawer Dropdown with AnimatePresence */}
       <AnimatePresence>
         {mobileNavOpen && (
           <motion.div
@@ -317,21 +323,102 @@ export default function TopNavbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#121215]/95 px-6 py-4 md:hidden backdrop-blur-md"
+            className="overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white/98 dark:bg-[#121215]/98 px-5 py-5 md:hidden backdrop-blur-xl shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto"
           >
-            <ul className="flex flex-col gap-3">
+            {/* 1. Mobile Navigation Links */}
+            <div className="space-y-1 pb-4">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2 px-3">
+                Navigation
+              </span>
               {navLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileNavOpen(false)}
-                    className="block py-2 text-base font-medium text-zinc-800 dark:text-zinc-200 transition hover:text-amber-500"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 hover:text-amber-500 transition-colors"
+                >
+                  <span className="text-base">{link.icon}</span>
+                  <span>{link.label}</span>
+                </Link>
               ))}
-            </ul>
+            </div>
+
+            {/* 2. Mobile Day / Night Mode Toggle */}
+            <div className="border-t border-zinc-150 dark:border-zinc-800/80 pt-4 pb-4">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2 px-1">
+                Appearance
+              </span>
+              <ThemeToggle variant="row" />
+            </div>
+
+            {/* 3. Mobile Authentication Actions */}
+            <div className="border-t border-zinc-150 dark:border-zinc-800/80 pt-4">
+              {isPending ? (
+                <div className="h-10 w-full rounded-xl bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+              ) : user ? (
+                /* Signed In User Profile in Mobile Drawer */
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-red-600 text-sm font-bold text-white shadow-sm">
+                      {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                    </div>
+                    <div className="flex-1 truncate">
+                      <p className="truncate text-sm font-bold text-zinc-900 dark:text-white">
+                        {user.name}
+                      </p>
+                      <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                        {user.email}
+                      </p>
+                      <span className={`inline-block mt-1 rounded-full border px-2 py-0.5 text-[9px] font-semibold ${roleInfo.className}`}>
+                        {roleInfo.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={getDashboardLink()}
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/80 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-750 transition text-center"
+                    >
+                      <span>⚡</span>
+                      <span>Dashboard</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition text-center cursor-pointer"
+                    >
+                      <span>🚪</span>
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Signed Out CTAs in Mobile Drawer */
+                <div className="space-y-2.5">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1 px-1">
+                    Account
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/sign-in"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-3 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition text-center"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/sign-up"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-md shadow-orange-500/25 transition hover:opacity-95 text-center"
+                    >
+                      Join PizzaHub
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
