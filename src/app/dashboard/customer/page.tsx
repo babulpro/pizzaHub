@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 interface OrderTimelineEvent {
   status: string;
@@ -132,12 +133,17 @@ export default function CustomerDashboardPage() {
       const res = await api.patch<{ message: string }>(`/orders/${orderId}/cancel`);
       if (res.success) {
         setSuccessMessage(`Order for "${pizzaName}" was cancelled successfully.`);
+        showToast.warning("Order Cancelled", `Your order for "${pizzaName}" has been cancelled.`);
         fetchOrders();
       } else {
-        setErrorMessage(res.message || "Failed to cancel order.");
+        const errMsg = res.message || "Failed to cancel order.";
+        setErrorMessage(errMsg);
+        showToast.error("Cancellation Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error cancelling order.");
+      const errMsg = err instanceof Error ? err.message : "Error cancelling order.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     } finally {
       setCancellingId(null);
     }

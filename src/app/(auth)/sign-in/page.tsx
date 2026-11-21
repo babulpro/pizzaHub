@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "@/lib/auth-client";
 import { ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 import {
   AuthAlert,
   AuthShell,
@@ -40,6 +41,10 @@ export default function SignInPage() {
     setPassword(demoPass);
     if (demoRole) setRole(demoRole);
     setError(null);
+    showToast.info(
+      "Demo Account Selected",
+      `Loaded credentials for ${demoEmail}`
+    );
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,7 +57,9 @@ export default function SignInPage() {
     const passwordVal = (formData.get("password") as string) || password;
 
     if (!emailVal || !passwordVal) {
-      setError("Please provide both email and password.");
+      const msg = "Please provide both email and password.";
+      setError(msg);
+      showToast.warning("Missing Fields", msg);
       setLoading(false);
       return;
     }
@@ -78,6 +85,10 @@ export default function SignInPage() {
         const directData = await directRes.json();
         if (directData.success && directData.token) {
           localStorage.setItem("pizzahub_jwt_token", directData.token);
+          showToast.pizza(
+            "Welcome Back!",
+            "Authentication successful. Directing to PizzaHub..."
+          );
           router.push("/");
           return;
         }
@@ -85,16 +96,22 @@ export default function SignInPage() {
         // Direct fallback failed
       }
 
-      setError(
+      const errMessage =
         authError.message === "Invalid email or password"
           ? "Incorrect email or password. Please try again."
-          : (authError.message ?? "Something went wrong. Please check your credentials.")
-      );
+          : (authError.message ?? "Something went wrong. Please check your credentials.");
+
+      setError(errMessage);
+      showToast.error("Sign In Failed", errMessage);
       setLoading(false);
       return;
     }
 
     // Success → sync backend JWT & redirect
+    showToast.pizza(
+      "Welcome Back! 🍕",
+      "Signed in successfully. Warming up the oven..."
+    );
     await ensureApiToken(passwordVal);
     router.push("/");
   };

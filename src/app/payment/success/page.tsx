@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -21,7 +22,9 @@ function PaymentSuccessContent() {
         if (isMounted) {
           setVerifying(false);
           setSuccess(true);
-          setMessage("Welcome to Gold Premium Kitchen! Your subscription is active.");
+          const msg = "Welcome to Gold Premium Kitchen! Your subscription is active.";
+          setMessage(msg);
+          showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
         }
         return;
       }
@@ -35,16 +38,22 @@ function PaymentSuccessContent() {
         if (isMounted) {
           if (res.success) {
             setSuccess(true);
-            setMessage(res.message || "Payment verified successfully! Welcome to Gold Premium Kitchen!");
+            const msg = res.message || "Payment verified successfully! Welcome to Gold Premium Kitchen!";
+            setMessage(msg);
+            showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
           } else {
             setSuccess(false);
-            setMessage(res.message || "Payment verification could not be completed.");
+            const errMsg = res.message || "Payment verification could not be completed.";
+            setMessage(errMsg);
+            showToast.error("Verification Incomplete", errMsg);
           }
         }
       } catch (err: unknown) {
         if (isMounted) {
           setSuccess(true); // Don't block vendor if webhook already processed
-          setMessage("Your Gold Premium upgrade is being processed. You can now publish unlimited pizzas!");
+          const msg = "Your Gold Premium upgrade is being processed. You can now publish unlimited pizzas!";
+          setMessage(msg);
+          showToast.pizza("Subscription Active! ⭐", msg);
         }
       } finally {
         if (isMounted) setVerifying(false);

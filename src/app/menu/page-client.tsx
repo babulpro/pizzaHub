@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 import { PizzaSliceIcon } from "../components/pizzahub-logo";
 
 export interface MenuItem {
@@ -148,12 +149,16 @@ export default function MenuClient({
     if (!selectedItem) return;
 
     if (!user) {
-      setOrderError("Please sign in to place an order.");
+      const msg = "Please sign in to place an order.";
+      setOrderError(msg);
+      showToast.warning("Sign In Required 🔒", msg);
       return;
     }
 
     if (!orderAddress.trim()) {
-      setOrderError("Please enter your delivery address.");
+      const msg = "Please enter your delivery address.";
+      setOrderError(msg);
+      showToast.warning("Address Required 📍", msg);
       return;
     }
 
@@ -171,7 +176,12 @@ export default function MenuClient({
       });
 
       if (res.success) {
-        setOrderSuccess("Order placed successfully! The kitchen has received your pizza request.");
+        const successMsg = `Order placed successfully! The kitchen has received your pizza request for ${selectedItem.itemName}.`;
+        setOrderSuccess(successMsg);
+        showToast.pizza(
+          "Order Confirmed! 🍕",
+          `Your ${selectedItem.itemName} is now baking in the wood-fired oven!`
+        );
         setTimeout(() => {
           setSelectedItem(null);
           setOrderSuccess(null);
@@ -179,10 +189,14 @@ export default function MenuClient({
           setOrderNote("");
         }, 2500);
       } else {
-        setOrderError(res.message || "Could not place order. Please try again.");
+        const errMsg = res.message || "Could not place order. Please try again.";
+        setOrderError(errMsg);
+        showToast.error("Order Failed", errMsg);
       }
     } catch (err: unknown) {
-      setOrderError(err instanceof Error ? err.message : "Failed to place order.");
+      const errMsg = err instanceof Error ? err.message : "Failed to place order.";
+      setOrderError(errMsg);
+      showToast.error("Order Error", errMsg);
     } finally {
       setOrderSubmitting(false);
     }
@@ -195,6 +209,7 @@ export default function MenuClient({
     setSortBy("featured");
     setFilterSpicyOnly(false);
     setFilterVegOnly(false);
+    showToast.info("Filters Reset 🍕", "Showing all handcrafted artisan pizzas.");
   };
 
   return (

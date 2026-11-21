@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import showToast from "@/lib/toast";
 import { PizzaSliceIcon } from "../components/pizzahub-logo";
 
 interface PromoCode {
@@ -137,6 +138,10 @@ export default function DealsPage() {
       navigator.clipboard.writeText(code);
     }
     setCopiedCode(code);
+    showToast.fire(
+      `Promo Code ${code} Copied! 📋`,
+      "Discount voucher saved to your clipboard. Paste at checkout!"
+    );
     setTimeout(() => {
       setCopiedCode(null);
     }, 2500);

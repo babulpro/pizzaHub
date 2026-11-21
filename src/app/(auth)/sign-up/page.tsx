@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp, useSession } from "@/lib/auth-client";
 import { ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 import {
   AuthAlert,
   AuthShell,
@@ -44,7 +45,9 @@ export default function SignUpPage() {
     setError(null);
 
     if (password !== confirm) {
-      setConfirmError("Passwords do not match");
+      const mismatch = "Passwords do not match. Please verify both entries.";
+      setConfirmError(mismatch);
+      showToast.warning("Password Mismatch", mismatch);
       return;
     }
     setConfirmError(null);
@@ -79,6 +82,10 @@ export default function SignUpPage() {
         const directData = await directRes.json();
         if (directData.success && directData.token) {
           localStorage.setItem("pizzahub_jwt_token", directData.token);
+          showToast.pizza(
+            "Account Created! 🍕",
+            `Welcome to PizzaHub, ${name.trim()}! Initializing your session...`
+          );
           router.push("/");
           return;
         }
@@ -86,12 +93,19 @@ export default function SignUpPage() {
         // Direct fallback failed
       }
 
-      setError(authError.message ?? "Could not create your PizzaHub account. Please try again.");
+      const errMsg =
+        authError.message ?? "Could not create your PizzaHub account. Please try again.";
+      setError(errMsg);
+      showToast.error("Registration Failed", errMsg);
       setLoading(false);
       return;
     }
 
     // Account created & session active → sync backend JWT with password & redirect
+    showToast.pizza(
+      "Welcome to PizzaHub! 🍕",
+      `Your ${role === "vendor" ? "Pizzeria Kitchen" : "Artisan Foodie"} account is ready!`
+    );
     await ensureApiToken(password);
     router.push("/");
   };

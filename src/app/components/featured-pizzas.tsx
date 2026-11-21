@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 interface PizzaItem {
   _id: string;
@@ -42,7 +43,15 @@ export default function FeaturedPizzas({
   const handleOrderClick = (pizza: PizzaItem) => {
     if (!user) {
       setAuthPromptItem(pizza);
+      showToast.warning(
+        "Sign In Required 🔒",
+        `Please sign in to order "${pizza.itemName}".`
+      );
     } else {
+      showToast.pizza(
+        "Loading Pizza Recipe... 🍕",
+        `Opening ${pizza.itemName} order details.`
+      );
       router.push(`/menu/${pizza._id}`);
     }
   };

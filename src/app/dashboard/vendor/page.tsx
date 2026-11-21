@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 interface VendorMenuItem {
   _id: string;
@@ -309,7 +310,12 @@ export default function VendorDashboardPage() {
       });
 
       if (res.success) {
-        setSuccessMessage(`🍕 "${formName}" created successfully and submitted to your kitchen menu!`);
+        const successMsg = `🍕 "${formName}" created successfully and submitted to your kitchen menu!`;
+        setSuccessMessage(successMsg);
+        showToast.pizza(
+          "Pizza Added to Menu! 🍕",
+          `"${formName}" is now active in your kitchen menu.`
+        );
         setIsAddModalOpen(false);
         // Reset form
         setFormName("");
@@ -319,10 +325,14 @@ export default function VendorDashboardPage() {
         setImagePreview(null);
         fetchData();
       } else {
-        setModalError(res.message || "Failed to publish pizza item.");
+        const errMsg = res.message || "Failed to publish pizza item.";
+        setModalError(errMsg);
+        showToast.error("Publish Failed", errMsg);
       }
     } catch (err: unknown) {
-      setModalError(err instanceof Error ? err.message : "Error creating menu item.");
+      const errMsg = err instanceof Error ? err.message : "Error creating menu item.";
+      setModalError(errMsg);
+      showToast.error("Error", errMsg);
     } finally {
       setSubmittingItem(false);
     }
@@ -333,12 +343,17 @@ export default function VendorDashboardPage() {
     try {
       const res = await api.patch<{ message: string }>(`/menu/${itemId}/toggle`);
       if (res.success) {
+        showToast.info("Item Visibility Updated", res.message || "Menu status toggled.");
         fetchData();
       } else {
-        setErrorMessage(res.message || "Failed to toggle item status.");
+        const errMsg = res.message || "Failed to toggle item status.";
+        setErrorMessage(errMsg);
+        showToast.error("Update Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error updating item status.");
+      const errMsg = err instanceof Error ? err.message : "Error updating item status.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     }
   };
 
@@ -348,13 +363,19 @@ export default function VendorDashboardPage() {
     try {
       const res = await api.delete<{ message: string }>(`/menu/${itemId}`);
       if (res.success) {
-        setSuccessMessage(`"${itemName}" was removed from your kitchen menu.`);
+        const msg = `"${itemName}" was removed from your kitchen menu.`;
+        setSuccessMessage(msg);
+        showToast.warning("Pizza Removed 🗑️", msg);
         fetchData();
       } else {
-        setErrorMessage(res.message || "Failed to delete item.");
+        const errMsg = res.message || "Failed to delete item.";
+        setErrorMessage(errMsg);
+        showToast.error("Delete Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error deleting item.");
+      const errMsg = err instanceof Error ? err.message : "Error deleting item.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     }
   };
 
@@ -366,13 +387,22 @@ export default function VendorDashboardPage() {
       });
 
       if (res.success) {
-        setSuccessMessage(`Order updated to "${newStatus}".`);
+        const msg = `Order updated to "${newStatus}".`;
+        setSuccessMessage(msg);
+        showToast.success(
+          `Order ${newStatus === "accepted" ? "Accepted" : "Declined"} 👨‍🍳`,
+          msg
+        );
         fetchData();
       } else {
-        setErrorMessage(res.message || "Failed to update order status.");
+        const errMsg = res.message || "Failed to update order status.";
+        setErrorMessage(errMsg);
+        showToast.error("Status Update Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error updating order.");
+      const errMsg = err instanceof Error ? err.message : "Error updating order.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     }
   };
 
@@ -380,16 +410,24 @@ export default function VendorDashboardPage() {
   const handleUpgradeToPremium = async () => {
     setIsUpgrading(true);
     setErrorMessage(null);
+    showToast.pizza(
+      "Opening Stripe Checkout... 💳",
+      "Redirecting to secure subscription portal."
+    );
     try {
       const res = await api.post<{ url: string }>("/stripe/create-checkout-session");
       const checkoutUrl = (res.data as { url?: string })?.url || (typeof res.url === "string" ? res.url : "");
       if (res.success && checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
-        setErrorMessage(res.message || "Failed to initiate Stripe Checkout session.");
+        const errMsg = res.message || "Failed to initiate Stripe Checkout session.";
+        setErrorMessage(errMsg);
+        showToast.error("Checkout Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error connecting to Stripe.");
+      const errMsg = err instanceof Error ? err.message : "Error connecting to Stripe.";
+      setErrorMessage(errMsg);
+      showToast.error("Stripe Error", errMsg);
     } finally {
       setIsUpgrading(false);
     }

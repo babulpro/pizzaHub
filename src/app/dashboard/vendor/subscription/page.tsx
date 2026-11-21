@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 interface QuotaState {
   plan: "free" | "premium";
@@ -84,6 +85,10 @@ export default function VendorSubscriptionPage() {
   const handleUpgradeToPremium = async () => {
     setUpgrading(true);
     setErrorMessage(null);
+    showToast.pizza(
+      "Connecting to Stripe... 💳",
+      "Opening your secure subscription checkout session."
+    );
     try {
       await ensureApiToken();
       const res = await api.post<{ url: string; sessionId?: string }>("/stripe/create-checkout-session");
@@ -94,11 +99,15 @@ export default function VendorSubscriptionPage() {
       if (res.success && checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
-        setErrorMessage(res.message || "Failed to create Stripe Checkout session. Please try again.");
+        const errMsg = res.message || "Failed to create Stripe Checkout session. Please try again.";
+        setErrorMessage(errMsg);
+        showToast.error("Upgrade Failed", errMsg);
         setUpgrading(false);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error connecting to Stripe.");
+      const errMsg = err instanceof Error ? err.message : "Error connecting to Stripe.";
+      setErrorMessage(errMsg);
+      showToast.error("Stripe Error", errMsg);
       setUpgrading(false);
     }
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import showToast from "@/lib/toast";
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -44,6 +45,10 @@ export default function ThemeToggle() {
       localStorage.setItem("pizzahub_theme", next);
     } catch {}
     applyTheme(next);
+    showToast.info(
+      `${next === "dark" ? "🌙 Night Mode" : "☀️ Day Mode"}`,
+      `Theme switched to ${next} mood.`
+    );
   };
 
   if (!mounted) {

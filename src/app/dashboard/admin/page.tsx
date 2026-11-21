@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 interface AdminUser {
   _id: string;
@@ -249,13 +250,19 @@ export default function AdminDashboardPage() {
       const res = await api.delete<{ message: string }>(`/vip/members/${member._id}`);
 
       if (res.success) {
-        setSuccessMessage(`Removed "${member.name}" from the VIP Club roster.`);
+        const msg = `Removed "${member.name}" from the VIP Club roster.`;
+        setSuccessMessage(msg);
+        showToast.warning("VIP Member Removed 📋", msg);
         setVipMembers((prev) => prev.filter((m) => m._id !== member._id));
       } else {
-        setErrorMessage(res.message || "Failed to remove VIP member.");
+        const errMsg = res.message || "Failed to remove VIP member.";
+        setErrorMessage(errMsg);
+        showToast.error("Remove Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error removing VIP member.");
+      const errMsg = err instanceof Error ? err.message : "Error removing VIP member.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     } finally {
       setActionLoadingId(null);
     }
@@ -284,7 +291,12 @@ export default function AdminDashboardPage() {
       );
 
       if (res.success) {
-        setSuccessMessage(`User "${targetUser.name || targetUser.email}" is now ${action}ed.`);
+        const msg = `User "${targetUser.name || targetUser.email}" is now ${action}ed.`;
+        setSuccessMessage(msg);
+        showToast.info(
+          `User ${action === "block" ? "Blocked 🛡️" : "Unblocked ✅"}`,
+          msg
+        );
         // Local update
         setUsers((prev) =>
           prev.map((u) =>
@@ -292,10 +304,14 @@ export default function AdminDashboardPage() {
           )
         );
       } else {
-        setErrorMessage(res.message || `Failed to ${action} user.`);
+        const errMsg = res.message || `Failed to ${action} user.`;
+        setErrorMessage(errMsg);
+        showToast.error("Action Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : `Error toggling user block status.`);
+      const errMsg = err instanceof Error ? err.message : `Error toggling user block status.`;
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     } finally {
       setActionLoadingId(null);
     }
@@ -316,15 +332,24 @@ export default function AdminDashboardPage() {
       });
 
       if (res.success) {
-        setSuccessMessage(`"${item.itemName}" was marked as "${newStatus}".`);
+        const msg = `"${item.itemName}" was marked as "${newStatus}".`;
+        setSuccessMessage(msg);
+        showToast.pizza(
+          `Pizza ${newStatus === "approved" ? "Approved ✅" : "Rejected ❌"}`,
+          msg
+        );
         setMenuItems((prev) =>
           prev.map((m) => (m._id === item._id ? { ...m, status: newStatus } : m))
         );
       } else {
-        setErrorMessage(res.message || "Failed to update item status.");
+        const errMsg = res.message || "Failed to update item status.";
+        setErrorMessage(errMsg);
+        showToast.error("Status Update Failed", errMsg);
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Error updating item status.");
+      const errMsg = err instanceof Error ? err.message : "Error updating item status.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
     } finally {
       setActionLoadingId(null);
     }

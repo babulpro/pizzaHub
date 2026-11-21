@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import showToast from "@/lib/toast";
 import PizzaHubLogo, { PizzaSliceIcon } from "./pizzahub-logo";
 
 /* ---------------------------- Icons ---------------------------- */
@@ -166,13 +167,19 @@ export function SocialButtons({
   const handleSocial = async (provider: "google" | "github") => {
     setLoading(provider);
     onError?.("");
+    showToast.info(
+      `Connecting to ${provider === "google" ? "Google" : "GitHub"}...`,
+      "Redirecting to secure authentication"
+    );
     const { error } = await signIn.social({
       provider,
       callbackURL: "/",
       ...(role ? { additionalData: { role } } : {}),
     });
     if (error) {
-      onError?.(error.message ?? `Could not sign in with ${provider}.`);
+      const msg = error.message ?? `Could not sign in with ${provider}.`;
+      onError?.(msg);
+      showToast.error("Social Sign In Failed", msg);
       setLoading(null);
     }
   };

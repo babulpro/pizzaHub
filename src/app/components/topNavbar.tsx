@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { signOut, useSession } from "@/lib/auth-client";
 import { setStoredToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 import PizzaHubLogo from "./pizzahub-logo";
 import ThemeToggle from "./theme-toggle";
 
@@ -228,10 +229,14 @@ export default function TopNavbar() {
                     <button
                       type="button"
                       role="menuitem"
-                      onClick={() => {
+                      onClick={async () => {
                         setMenuOpen(false);
                         setStoredToken(null);
-                        signOut();
+                        await signOut();
+                        showToast.pizza(
+                          "Logged Out",
+                          "See you next pizza slice! Come back hungry! 👋"
+                        );
                       }}
                       className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
                     >

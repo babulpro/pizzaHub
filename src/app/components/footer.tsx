@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { ensureApiToken } from "@/lib/api";
 import { joinVipServerAction } from "@/app/actions/vip";
+import showToast from "@/lib/toast";
 import PizzaHubLogo from "./pizzahub-logo";
 
 interface PolicyModalInfo {
@@ -87,6 +88,10 @@ export default function Footer() {
 
     if (!user) {
       setAuthRequired(true);
+      showToast.warning(
+        "Sign In Required 🔒",
+        "You must be signed in to an account to join the PizzaHub VIP Club."
+      );
       return;
     }
 
@@ -99,6 +104,7 @@ export default function Footer() {
       if (!token) {
         setAuthRequired(true);
         setLoading(false);
+        showToast.warning("Session Expired", "Please re-authenticate to join.");
         return;
       }
 
@@ -107,12 +113,18 @@ export default function Footer() {
 
       if (res.success) {
         setSubscribed(true);
-        setMessage(res.message || "Welcome to the PizzaHub VIP Club!");
+        const msg = res.message || "Welcome to the PizzaHub VIP Club!";
+        setMessage(msg);
+        showToast.pizza("VIP Club Membership Confirmed! 🍕", msg);
       } else {
-        setMessage(res.error || "Could not join VIP Club. Please try again.");
+        const err = res.error || "Could not join VIP Club. Please try again.";
+        setMessage(err);
+        showToast.error("VIP Club", err);
       }
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Error joining VIP club.");
+      const msg = err instanceof Error ? err.message : "Error joining VIP club.";
+      setMessage(msg);
+      showToast.error("Error", msg);
     } finally {
       setLoading(false);
     }

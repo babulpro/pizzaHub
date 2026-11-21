@@ -151,3 +151,11 @@ html.light footer {
   background-color: #f3f4f6 !important;
   border-color: #e5e7eb !important;
 }
+
+/* Toast styling for Day Mode */
+html.light [data-sonner-toaster] .pizzahub-toast {
+  background: #ffffff !important;
+  color: #1a1a1e !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+}

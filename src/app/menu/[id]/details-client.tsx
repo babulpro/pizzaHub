@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
+import showToast from "@/lib/toast";
 
 export interface MenuItemDetails {
   _id: string;
@@ -148,12 +149,16 @@ export default function PizzaDetailsClient({
     if (!item) return;
 
     if (!user) {
-      setOrderError("Please sign in to place an order.");
+      const msg = "Please sign in to place an order.";
+      setOrderError(msg);
+      showToast.warning("Sign In Required 🔒", msg);
       return;
     }
 
     if (!orderAddress.trim()) {
-      setOrderError("Please provide a valid delivery address.");
+      const msg = "Please provide a valid delivery address.";
+      setOrderError(msg);
+      showToast.warning("Delivery Address Required 📍", msg);
       return;
     }
 
@@ -171,19 +176,24 @@ export default function PizzaDetailsClient({
       });
 
       if (res.success) {
-        setOrderSuccess(
-          "🍕 Your order has been placed successfully! The artisan kitchen has started preparing your order."
+        const msg = `🍕 Your order for "${item.itemName}" has been placed! The artisan kitchen has started preparing your order.`;
+        setOrderSuccess(msg);
+        showToast.pizza(
+          "Order Transmitted to Kitchen! 🍕",
+          `Freshly prepping ${item.itemName} at 900°F.`
         );
         setTimeout(() => {
           router.push("/dashboard/customer/orders");
         }, 2200);
       } else {
-        setOrderError(res.message || "Could not place order. Please try again.");
+        const errMsg = res.message || "Could not place order. Please try again.";
+        setOrderError(errMsg);
+        showToast.error("Order Failed", errMsg);
       }
     } catch (err: unknown) {
-      setOrderError(
-        err instanceof Error ? err.message : "Failed to place order."
-      );
+      const errMsg = err instanceof Error ? err.message : "Failed to place order.";
+      setOrderError(errMsg);
+      showToast.error("Order Error", errMsg);
     } finally {
       setOrderSubmitting(false);
     }
