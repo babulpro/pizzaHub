@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "motion/react";
 
 const TESTIMONIALS = [
   {
@@ -38,7 +41,13 @@ export default function Testimonials() {
     <section id="reviews" className="relative py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#0c0c0e] transition-colors duration-200">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center text-center"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-400 backdrop-blur-md shadow-xs">
             <span>⭐</span>
             <span>VERIFIED FOODIE COMMUNITY</span>
@@ -49,17 +58,22 @@ export default function Testimonials() {
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             Hear from New York foodies, critics, and artisan pizzaiolos who trust PizzaHub every single week.
           </p>
-        </div>
+        </motion.div>
 
         {/* Testimonials Grid */}
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {TESTIMONIALS.map((t, idx) => (
-            <div
+            <motion.div
               key={idx}
-              className="flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-6 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-lg dark:hover:bg-zinc-900/70"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: idx * 0.15, ease: "easeOut" }}
+              whileHover={{ y: -6, transition: { duration: 0.25 } }}
+              className="flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-6 shadow-md transition-colors duration-300 hover:border-amber-500/40 hover:shadow-xl dark:hover:bg-zinc-900/70"
             >
               <div>
-                {/* 5 Stars */}
+                {/* 5 Stars with subtle stagger */}
                 <div className="flex items-center gap-1 text-amber-500 text-sm">
                   {Array.from({ length: t.rating }).map((_, i) => (
                     <span key={i}>★</span>
@@ -98,7 +112,7 @@ export default function Testimonials() {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

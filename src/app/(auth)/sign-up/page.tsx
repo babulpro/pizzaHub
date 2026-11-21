@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
 import { signUp, useSession } from "@/lib/auth-client";
 import { ensureApiToken } from "@/lib/api";
 import showToast from "@/lib/toast";
@@ -119,7 +120,7 @@ export default function SignUpPage() {
           Already part of PizzaHub?{" "}
           <Link
             href="/sign-in"
-            className="font-semibold text-amber-400 transition hover:text-amber-300"
+            className="font-bold text-amber-600 dark:text-amber-400 transition hover:underline"
           >
             Sign in
           </Link>
@@ -154,24 +155,31 @@ export default function SignUpPage() {
             />
           </div>
 
-          {/* Conditional Business Name for Pizzeria Vendors */}
-          {role === "vendor" && (
-            <div className="animate-in fade-in duration-200">
-              <label htmlFor="businessName" className={labelClasses}>
-                Pizzeria / Restaurant Name
-              </label>
-              <input
-                id="businessName"
-                name="businessName"
-                type="text"
-                required
-                placeholder="e.g. Forno Napoli Wood-Fired"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                className={inputClasses}
-              />
-            </div>
-          )}
+          {/* Conditional Business Name for Pizzeria Vendors with Smooth Motion */}
+          <AnimatePresence>
+            {role === "vendor" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <label htmlFor="businessName" className={labelClasses}>
+                  Pizzeria / Restaurant Name
+                </label>
+                <input
+                  id="businessName"
+                  name="businessName"
+                  type="text"
+                  required
+                  placeholder="e.g. Forno Napoli Wood-Fired"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  className={inputClasses}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div>
             <label htmlFor="email" className={labelClasses}>
@@ -232,9 +240,9 @@ export default function SignUpPage() {
 
           <p className="text-center text-xs leading-relaxed text-zinc-500">
             By creating an account, you agree to PizzaHub&apos;s{" "}
-            <span className="text-zinc-400 underline underline-offset-2">Terms of Service</span>{" "}
+            <span className="text-zinc-600 dark:text-zinc-400 underline underline-offset-2">Terms of Service</span>{" "}
             and{" "}
-            <span className="text-zinc-400 underline underline-offset-2">Privacy Policy</span>.
+            <span className="text-zinc-600 dark:text-zinc-400 underline underline-offset-2">Privacy Policy</span>.
           </p>
         </form>
       </div>

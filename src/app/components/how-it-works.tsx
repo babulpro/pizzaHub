@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
 
 const STEPS = [
   {
@@ -46,7 +49,13 @@ export default function HowItWorks() {
 
       <div className="relative mx-auto max-w-7xl">
         {/* Section Heading */}
-        <div className="flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center text-center"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-orange-500/15 px-4 py-1.5 text-xs font-semibold text-orange-700 dark:text-orange-400 backdrop-blur-md shadow-xs">
             <span>⚡</span>
             <span>SEAMLESS 3-STEP JOURNEY</span>
@@ -57,14 +66,19 @@ export default function HowItWorks() {
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             From our artisan partners&apos; roaring ovens straight to your dining table with zero compromise on crust crispiness.
           </p>
-        </div>
+        </motion.div>
 
         {/* Steps Grid */}
         <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {STEPS.map((item) => (
-            <div
+          {STEPS.map((item, idx) => (
+            <motion.div
               key={item.step}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 shadow-md dark:shadow-lg`}
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.55, delay: idx * 0.15, ease: "easeOut" }}
+              whileHover={{ y: -8, transition: { duration: 0.25 } }}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 p-8 transition-colors duration-300 hover:border-amber-500/50 shadow-md dark:shadow-lg"
             >
               {/* Corner Watermark Step Number */}
               <div className="absolute top-4 right-4 text-4xl font-black tracking-tighter text-zinc-200 dark:text-zinc-800/40 select-none group-hover:text-amber-500/30 transition-colors">
@@ -74,9 +88,13 @@ export default function HowItWorks() {
               <div>
                 {/* Icon & Badge */}
                 <div className="flex items-center gap-3">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl shadow-inner ${item.iconBg}`}>
+                  <motion.div
+                    whileHover={{ rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.4 }}
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl shadow-inner ${item.iconBg}`}
+                  >
                     {item.icon}
-                  </div>
+                  </motion.div>
                   <span className="text-[11px] font-bold tracking-wider text-zinc-500 dark:text-zinc-400 uppercase">
                     {item.badge}
                   </span>
@@ -98,12 +116,18 @@ export default function HowItWorks() {
                 <span>Step {item.step} of 03</span>
                 <span className="font-semibold text-amber-600 dark:text-amber-400">Guaranteed Fresh</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Bottom CTA Strip */}
-        <div className="mt-16 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md dark:shadow-xl">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-16 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md dark:shadow-xl"
+        >
           <div className="flex items-center gap-4 text-center sm:text-left">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-2xl border border-amber-500/30">
               🛵
@@ -117,13 +141,15 @@ export default function HowItWorks() {
               </p>
             </div>
           </div>
-          <Link
-            href="/menu"
-            className="rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95 shrink-0"
-          >
-            Order Hot Pizza Now →
-          </Link>
-        </div>
+          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+            <Link
+              href="/menu"
+              className="rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 cursor-pointer block"
+            >
+              Order Hot Pizza Now →
+            </Link>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

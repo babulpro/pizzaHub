@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "@/lib/auth-client";
 import { api, ensureApiToken } from "@/lib/api";
 import showToast from "@/lib/toast";
@@ -238,7 +239,18 @@ export default function PizzaDetailsClient({
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100 pb-24 transition-colors">
       {/* Ambient Warm Oven Glow */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/15 via-orange-500/5 to-transparent blur-3xl dark:from-amber-500/10 dark:via-red-600/5" />
+      <motion.div
+        animate={{
+          scale: [1, 1.05, 1],
+          opacity: [0.6, 0.8, 0.6],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/15 via-orange-500/5 to-transparent blur-3xl dark:from-amber-500/10 dark:via-red-600/5"
+      />
 
       {/* Breadcrumb Navigation */}
       <nav className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#121215]/60 py-3.5 backdrop-blur-md transition-colors">
@@ -294,18 +306,34 @@ export default function PizzaDetailsClient({
         {!loading && !error && item && (
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 items-start">
             {/* Left Column: Image Gallery, Specs, Vendor (7 cols) */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Main Image Card */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="lg:col-span-7 space-y-6"
+            >
+              {/* Main Image Card with Crossfade Animation */}
               <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] shadow-xl dark:shadow-2xl">
-                <div className="relative h-[380px] sm:h-[480px] w-full bg-zinc-100 dark:bg-zinc-950">
-                  <Image
-                    src={activeImage}
-                    alt={item.itemName}
-                    fill
-                    priority
-                    unoptimized={activeImage.startsWith("http")}
-                    className="object-cover object-center transition-all duration-300"
-                  />
+                <div className="relative h-[380px] sm:h-[480px] w-full bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeImage}
+                      initial={{ opacity: 0.6, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0.6 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={activeImage}
+                        alt={item.itemName}
+                        fill
+                        priority
+                        unoptimized={activeImage.startsWith("http")}
+                        className="object-cover object-center"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-80" />
 
                   {/* Top Badges */}
@@ -353,9 +381,11 @@ export default function PizzaDetailsClient({
                     {item.images.map((img, idx) => {
                       const isSelected = activeImage === img;
                       return (
-                        <button
+                        <motion.button
                           key={idx}
                           type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => setSelectedImage(img)}
                           className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
                             isSelected
@@ -370,7 +400,7 @@ export default function PizzaDetailsClient({
                             unoptimized={img.startsWith("http")}
                             className="object-cover"
                           />
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -384,38 +414,50 @@ export default function PizzaDetailsClient({
                   <span>Artisan Craftsmanship Specifications</span>
                 </h3>
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                  <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5">
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5 transition-colors"
+                  >
                     <span className="block text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400">
                       Fermentation
                     </span>
                     <span className="text-xs font-black text-amber-600 dark:text-amber-400 mt-1 block">
                       72-Hour Cold Proof
                     </span>
-                  </div>
-                  <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5">
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5 transition-colors"
+                  >
                     <span className="block text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400">
                       Oven Heat
                     </span>
                     <span className="text-xs font-black text-orange-600 dark:text-orange-400 mt-1 block">
                       900°F Wood-Fired
                     </span>
-                  </div>
-                  <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5">
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5 transition-colors"
+                  >
                     <span className="block text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400">
                       Mozzarella
                     </span>
                     <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
                       100% Buffalo DOP
                     </span>
-                  </div>
-                  <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5">
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 p-3.5 transition-colors"
+                  >
                     <span className="block text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400">
                       Delivery
                     </span>
                     <span className="text-xs font-black text-rose-600 dark:text-rose-400 mt-1 block">
                       Thermal Insulated
                     </span>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
 
@@ -458,18 +500,25 @@ export default function PizzaDetailsClient({
                     </div>
                   </div>
 
-                  <Link
-                    href={`/menu?location=${encodeURIComponent(item.location)}`}
-                    className="inline-flex items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-850 px-4 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition self-start sm:self-auto cursor-pointer"
-                  >
-                    More from this Kitchen →
-                  </Link>
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                    <Link
+                      href={`/menu?location=${encodeURIComponent(item.location)}`}
+                      className="inline-flex items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-850 px-4 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition self-start sm:self-auto cursor-pointer"
+                    >
+                      More from this Kitchen →
+                    </Link>
+                  </motion.div>
                 </div>
               )}
-            </div>
+            </motion.div>
 
             {/* Right Column: Order Form & Details (5 cols) */}
-            <div className="lg:col-span-5 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="lg:col-span-5 space-y-6"
+            >
               <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] p-6 sm:p-8 shadow-xl dark:shadow-2xl">
                 {/* Title & Price Header */}
                 <div className="border-b border-zinc-200 dark:border-zinc-800/80 pb-6">
@@ -504,14 +553,22 @@ export default function PizzaDetailsClient({
 
                 {/* Status Messages */}
                 {orderSuccess && (
-                  <div className="mt-5 rounded-2xl border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 leading-relaxed animate-in fade-in">
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-5 rounded-2xl border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 leading-relaxed"
+                  >
                     {orderSuccess}
-                  </div>
+                  </motion.div>
                 )}
                 {orderError && (
-                  <div className="mt-5 rounded-2xl border border-red-500/40 bg-red-50 dark:bg-red-500/10 p-4 text-xs font-semibold text-red-800 dark:text-red-300 leading-relaxed animate-in fade-in">
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-5 rounded-2xl border border-red-500/40 bg-red-50 dark:bg-red-500/10 p-4 text-xs font-semibold text-red-800 dark:text-red-300 leading-relaxed"
+                  >
                     {orderError}
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Order Form */}
@@ -529,45 +586,59 @@ export default function PizzaDetailsClient({
                       </p>
                     </div>
                     <div className="pt-2 flex flex-col gap-2.5 max-w-xs mx-auto">
-                      <Link
-                        href={`/sign-in?callbackUrl=/menu/${item._id}`}
-                        className="inline-block w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/20 hover:opacity-95 transition text-center cursor-pointer"
-                      >
-                        Sign In to Order Now →
-                      </Link>
-                      <Link
-                        href={`/sign-up?callbackUrl=/menu/${item._id}`}
-                        className="inline-block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition text-center cursor-pointer"
-                      >
-                        Create Free Account
-                      </Link>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Link
+                          href={`/sign-in?callbackUrl=/menu/${item._id}`}
+                          className="inline-block w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/20 hover:opacity-95 transition text-center cursor-pointer"
+                        >
+                          Sign In to Order Now →
+                        </Link>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Link
+                          href={`/sign-up?callbackUrl=/menu/${item._id}`}
+                          className="inline-block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition text-center cursor-pointer"
+                        >
+                          Create Free Account
+                        </Link>
+                      </motion.div>
                     </div>
                   </div>
                 ) : (
                   <form onSubmit={handlePlaceOrder} className="mt-6 space-y-4">
-                    {/* Quantity Selector */}
+                    {/* Quantity Selector with Bounce Motion */}
                     <div>
                       <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
                         Quantity
                       </label>
                       <div className="flex items-center gap-3">
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                           className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 text-base font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
                         >
                           -
-                        </button>
-                        <span className="min-w-[40px] text-center text-sm font-bold text-zinc-900 dark:text-white">
+                        </motion.button>
+                        <motion.span
+                          key={quantity}
+                          initial={{ scale: 0.7, y: -2 }}
+                          animate={{ scale: 1, y: 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                          className="min-w-[40px] text-center text-sm font-bold text-zinc-900 dark:text-white"
+                        >
                           {quantity}
-                        </span>
-                        <button
+                        </motion.span>
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                           className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 text-base font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
                         >
                           +
-                        </button>
+                        </motion.button>
                         <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-auto font-medium">
                           Subtotal: <span className="font-bold text-zinc-900 dark:text-white">${totalPrice}</span>
                         </span>
@@ -632,19 +703,21 @@ export default function PizzaDetailsClient({
                     </div>
 
                     {/* Submit CTA */}
-                    <button
+                    <motion.button
                       type="submit"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       disabled={orderSubmitting}
-                      className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-xl shadow-orange-500/20 transition hover:opacity-95 active:scale-95 disabled:opacity-50 cursor-pointer"
+                      className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-xl shadow-orange-500/20 transition hover:opacity-95 disabled:opacity-50 cursor-pointer"
                     >
                       {orderSubmitting
                         ? "Transmitting to Kitchen..."
                         : `Place Order • $${totalPrice}`}
-                    </button>
+                    </motion.button>
                   </form>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -669,7 +742,7 @@ export default function PizzaDetailsClient({
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {categoryPizzas.map((related) => {
+              {categoryPizzas.map((related, idx) => {
                 const relatedImg =
                   related.images && related.images.length > 0
                     ? related.images[0]
@@ -677,9 +750,14 @@ export default function PizzaDetailsClient({
                 const relPrice = typeof related.price === "number" ? related.price : 20;
 
                 return (
-                  <div
+                  <motion.div
                     key={related._id}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] hover:border-amber-500/50 transition-all duration-300 shadow-md dark:shadow-none"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.1 }}
+                    whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#141418] hover:border-amber-500/50 transition-colors duration-300 shadow-md dark:shadow-none"
                   >
                     <Link
                       href={`/menu/${related._id}`}
@@ -722,7 +800,7 @@ export default function PizzaDetailsClient({
                         </Link>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

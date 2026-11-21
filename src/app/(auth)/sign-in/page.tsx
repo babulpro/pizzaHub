@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { signIn, useSession } from "@/lib/auth-client";
 import { ensureApiToken } from "@/lib/api";
 import showToast from "@/lib/toast";
@@ -125,7 +126,7 @@ export default function SignInPage() {
           New to PizzaHub?{" "}
           <Link
             href="/sign-up"
-            className="font-semibold text-amber-400 transition hover:text-amber-300"
+            className="font-bold text-amber-600 dark:text-amber-400 transition hover:underline"
           >
             Create an account
           </Link>
@@ -137,28 +138,37 @@ export default function SignInPage() {
         <Divider />
 
         {/* 1-Click Demo Credentials */}
-        <div className="rounded-xl border border-zinc-800 bg-[#16161b] p-3">
-          <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
-            <span className="font-semibold text-amber-400">⚡ 1-Click Demo Logins:</span>
-            <span className="text-zinc-500">Auto-fills test account</span>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100/90 dark:bg-[#16161b] p-3.5 shadow-sm"
+        >
+          <div className="flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-400 mb-2.5">
+            <span className="font-bold text-amber-600 dark:text-amber-400">⚡ 1-Click Demo Logins:</span>
+            <span className="text-zinc-500">Auto-fills credentials</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <motion.button
               type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => fillDemoAccount("marco@fornonapoli.com", "12345678", "vendor")}
-              className="rounded-lg border border-amber-500/30 bg-amber-500/10 py-1.5 px-2 text-[11px] font-bold text-amber-300 hover:bg-amber-500/20 transition text-center cursor-pointer"
+              className="rounded-xl border border-amber-500/40 bg-amber-500/15 py-2 px-2.5 text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition text-center cursor-pointer shadow-xs"
             >
-              👨‍🍳 Vendor
-            </button>
-            <button
+              👨‍🍳 Vendor Demo
+            </motion.button>
+            <motion.button
               type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => fillDemoAccount("amina@customer.com", "12345678", "customer")}
-              className="rounded-lg border border-orange-500/30 bg-orange-500/10 py-1.5 px-2 text-[11px] font-bold text-orange-300 hover:bg-orange-500/20 transition text-center cursor-pointer"
+              className="rounded-xl border border-orange-500/40 bg-orange-500/15 py-2 px-2.5 text-xs font-bold text-orange-800 dark:text-orange-300 hover:bg-orange-500/25 transition text-center cursor-pointer shadow-xs"
             >
-              🍕 Customer
-            </button>
+              🍕 Customer Demo
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         <form onSubmit={onSubmit} className="space-y-5" noValidate={false}>
           <AuthAlert message={error} />
@@ -197,12 +207,12 @@ export default function SignInPage() {
           </div>
 
           {/* Remember me */}
-          <label className="flex cursor-pointer select-none items-center gap-2.5 text-xs text-zinc-300">
+          <label className="flex cursor-pointer select-none items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
             <input
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 accent-amber-500"
+              className="h-4 w-4 cursor-pointer rounded border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 accent-amber-500"
             />
             Keep me signed in for 30 days
           </label>

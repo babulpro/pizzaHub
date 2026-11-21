@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "motion/react";
 import { useSession } from "@/lib/auth-client";
 
 export default function VendorSpotlight() {
@@ -15,7 +16,13 @@ export default function VendorSpotlight() {
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Heading */}
-        <div className="flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center text-center"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-400 backdrop-blur-md shadow-xs">
             <span>👨‍🍳</span>
             <span>FOR PIZZERIA OWNERS & CHEFS</span>
@@ -26,12 +33,19 @@ export default function VendorSpotlight() {
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             Connect directly with thousands of passionate pizza lovers. Start free with up to 3 signature pies, or unlock unlimited scale with Premium Kitchen.
           </p>
-        </div>
+        </motion.div>
 
         {/* Pricing & Tier Comparison Cards */}
         <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2 lg:max-w-4xl lg:mx-auto">
           {/* Free Starter Tier */}
-          <div className="relative flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-8 shadow-lg dark:shadow-xl backdrop-blur-md transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            whileHover={{ y: -6, transition: { duration: 0.25 } }}
+            className="relative flex flex-col justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-8 shadow-lg dark:shadow-xl backdrop-blur-md transition-colors hover:border-zinc-300 dark:hover:border-zinc-700"
+          >
             <div>
               <div className="flex items-center justify-between">
                 <span className="rounded-lg bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-xs font-bold text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700/60">
@@ -75,26 +89,35 @@ export default function VendorSpotlight() {
             </div>
 
             <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800">
-              {isVendor ? (
-                <Link
-                  href="/dashboard/vendor"
-                  className="block w-full text-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-750 py-3 text-xs font-bold text-zinc-900 dark:text-white transition shadow-xs"
-                >
-                  Go to Vendor Dashboard
-                </Link>
-              ) : (
-                <Link
-                  href="/sign-up?role=vendor"
-                  className="block w-full text-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-750 py-3 text-xs font-bold text-zinc-900 dark:text-white transition shadow-xs"
-                >
-                  Register As Pizzeria (Free)
-                </Link>
-              )}
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                {isVendor ? (
+                  <Link
+                    href="/dashboard/vendor"
+                    className="block w-full text-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-750 py-3 text-xs font-bold text-zinc-900 dark:text-white transition shadow-xs cursor-pointer"
+                  >
+                    Go to Vendor Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    href="/sign-up?role=vendor"
+                    className="block w-full text-center rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-750 py-3 text-xs font-bold text-zinc-900 dark:text-white transition shadow-xs cursor-pointer"
+                  >
+                    Register As Pizzeria (Free)
+                  </Link>
+                )}
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Premium Gold Tier */}
-          <div className="relative flex flex-col justify-between rounded-2xl border-2 border-amber-500/80 bg-gradient-to-b from-amber-50/70 via-white to-amber-50/30 dark:from-zinc-900/90 dark:via-zinc-900/70 dark:to-zinc-950 p-8 shadow-xl shadow-amber-500/10 dark:shadow-2xl dark:shadow-amber-500/10 backdrop-blur-md transition-all hover:border-amber-400">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, delay: 0.15, ease: "easeOut" }}
+            whileHover={{ y: -6, transition: { duration: 0.25 } }}
+            className="relative flex flex-col justify-between rounded-2xl border-2 border-amber-500/80 bg-gradient-to-b from-amber-50/70 via-white to-amber-50/30 dark:from-zinc-900/90 dark:via-zinc-900/70 dark:to-zinc-950 p-8 shadow-xl shadow-amber-500/10 dark:shadow-2xl dark:shadow-amber-500/10 backdrop-blur-md transition-colors hover:border-amber-400"
+          >
             {/* Best Value Pill */}
             <div className="absolute -top-3.5 right-6">
               <span className="rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
@@ -145,18 +168,26 @@ export default function VendorSpotlight() {
             </div>
 
             <div className="mt-8 pt-6 border-t border-amber-500/20">
-              <Link
-                href={isVendor ? "/dashboard/vendor/subscription" : "/sign-up?role=vendor"}
-                className="block w-full text-center rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
-              >
-                {isVendor ? "Manage Subscription & Upgrade →" : "Partner & Get Premium →"}
-              </Link>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href={isVendor ? "/dashboard/vendor/subscription" : "/sign-up?role=vendor"}
+                  className="block w-full text-center rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 cursor-pointer"
+                >
+                  {isVendor ? "Manage Subscription & Upgrade →" : "Partner & Get Premium →"}
+                </Link>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Platform Metrics */}
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-8 text-center text-xs text-zinc-600 dark:text-zinc-400">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="mt-14 flex flex-wrap items-center justify-center gap-8 text-center text-xs text-zinc-600 dark:text-zinc-400"
+        >
           <div className="flex items-center gap-2">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
             <span>Over 15+ Verified Kitchens Baking Daily</span>
@@ -169,7 +200,7 @@ export default function VendorSpotlight() {
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
             <span>Powered by Secure Stripe Payment Gateway</span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "@/lib/auth-client";
 import { api } from "@/lib/api";
 import showToast from "@/lib/toast";
@@ -97,7 +98,13 @@ export default function FeaturedPizzas({
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center text-center"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-400 backdrop-blur-md shadow-xs">
             <span>🍕</span>
             <span>HANDCRAFTED SIGNATURE PIES</span>
@@ -108,7 +115,7 @@ export default function FeaturedPizzas({
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
             Fermented for 72 hours, blistered at 900°F in authentic wood-fired ovens, and topped with D.O.P. Italian ingredients.
           </p>
-        </div>
+        </motion.div>
 
         {/* Loading Skeletons */}
         {loading && (
@@ -116,7 +123,7 @@ export default function FeaturedPizzas({
             {[1, 2, 3, 4].map((n) => (
               <div
                 key={n}
-                className="animate-pulse rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-4"
+                className="animate-pulse rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-4 shadow-sm"
               >
                 <div className="h-44 w-full rounded-xl bg-zinc-200 dark:bg-zinc-800/60" />
                 <div className="mt-4 h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-800/80" />
@@ -132,7 +139,11 @@ export default function FeaturedPizzas({
 
         {/* Empty State when no pizzas in database */}
         {!loading && pizzas.length === 0 && (
-          <div className="mt-14 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800 p-12 text-center bg-zinc-50 dark:bg-zinc-950/40 max-w-lg mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-14 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800 p-12 text-center bg-zinc-50 dark:bg-zinc-950/40 max-w-lg mx-auto"
+          >
             <span className="text-4xl">🍕</span>
             <h3 className="mt-4 text-base font-bold text-zinc-900 dark:text-white">No Live Pizzas in the Oven Yet</h3>
             <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
@@ -141,18 +152,18 @@ export default function FeaturedPizzas({
             <div className="mt-6 flex items-center justify-center gap-3">
               <Link
                 href="/menu"
-                className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-400 shadow-md"
+                className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-400 shadow-md transition"
               >
                 Explore Menu
               </Link>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Real Live Pizzas Grid (No Demo Data) */}
+        {/* Real Live Pizzas Grid */}
         {!loading && pizzas.length > 0 && (
           <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {pizzas.map((pizza) => {
+            {pizzas.map((pizza, idx) => {
               const imageSrc =
                 Array.isArray(pizza.images) && pizza.images.length > 0 && pizza.images[0]
                   ? pizza.images[0]
@@ -161,9 +172,14 @@ export default function FeaturedPizzas({
                   : "https://images.unsplash.com/photo-1544982503-9f984c14501a?auto=format&fit=crop&w=1000&q=80";
 
               return (
-                <div
+                <motion.div
                   key={pizza._id}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 shadow-md dark:shadow-lg transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: idx * 0.1, ease: "easeOut" }}
+                  whileHover={{ y: -8, transition: { duration: 0.25 } }}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 shadow-md dark:shadow-lg transition-colors duration-300 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
                 >
                   {/* Pizza Image Frame */}
                   <Link href={`/menu/${pizza._id}`} className="relative h-48 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-950 block">
@@ -172,7 +188,7 @@ export default function FeaturedPizzas({
                       alt={pizza.itemName}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover:scale-108"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
@@ -265,87 +281,110 @@ export default function FeaturedPizzas({
                         >
                           Details
                         </Link>
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleOrderClick(pizza)}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-amber-500/20 transition-all hover:brightness-110 active:scale-95 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-amber-500/20 transition-all hover:brightness-110 cursor-pointer"
                         >
                           <span>Order</span>
                           <span>→</span>
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         )}
 
         {/* View Full Menu CTA */}
-        <div className="mt-12 flex flex-col items-center justify-center gap-3 text-center sm:flex-row">
-          <Link
-            href="/menu"
-            className="group inline-flex items-center gap-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700/80 px-6 py-3.5 text-sm font-bold text-zinc-900 dark:text-white shadow-md transition-all hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
-          >
-            <span>Browse Full Menu & All 15+ Artisan Pizzas</span>
-            <span className="transition-transform group-hover:translate-x-1">→</span>
-          </Link>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-12 flex flex-col items-center justify-center gap-3 text-center sm:flex-row"
+        >
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              href="/menu"
+              className="group inline-flex items-center gap-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700/80 px-6 py-3.5 text-sm font-bold text-zinc-900 dark:text-white shadow-md transition-all hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer"
+            >
+              <span>Browse Full Menu & All 15+ Artisan Pizzas</span>
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
+          </motion.div>
           <span className="text-xs text-zinc-500">
             {loading ? "Syncing live kitchen menu..." : "Free delivery available on orders over $35"}
           </span>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Sign In Required Alert Modal */}
-      {authPromptItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16161a] p-6 shadow-2xl">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                  {authPromptItem.category}
-                </span>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
-                  Order {authPromptItem.itemName}
-                </h3>
+      {/* Sign In Required Alert Modal with AnimatePresence */}
+      <AnimatePresence>
+        {authPromptItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 15 }}
+              transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
+              className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16161a] p-6 shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    {authPromptItem.category}
+                  </span>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
+                    Order {authPromptItem.itemName}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAuthPromptItem(null)}
+                  className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setAuthPromptItem(null)}
-                className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Modal Body */}
-            <div className="py-6 text-center space-y-4">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 text-3xl text-amber-500 border border-amber-500/30">
-                🍕
+              {/* Modal Body */}
+              <div className="py-6 text-center space-y-4">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 text-3xl text-amber-500 border border-amber-500/30">
+                  🍕
+                </div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                  Please sign in to place your order and get live kitchen updates.
+                </p>
+                <div className="flex flex-col gap-2.5 pt-2">
+                  <Link
+                    href={`/sign-in?callbackUrl=/menu/${authPromptItem._id}`}
+                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 text-center"
+                  >
+                    Sign In to Continue
+                  </Link>
+                  <Link
+                    href={`/sign-up?callbackUrl=/menu/${authPromptItem._id}`}
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-300 transition hover:bg-zinc-200 dark:hover:bg-zinc-800 text-center"
+                  >
+                    Create a New Account
+                  </Link>
+                </div>
               </div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                Please sign in to place your order and get live kitchen updates.
-              </p>
-              <div className="flex flex-col gap-2.5 pt-2">
-                <Link
-                  href={`/sign-in?callbackUrl=/menu/${authPromptItem._id}`}
-                  className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 text-center"
-                >
-                  Sign In to Continue
-                </Link>
-                <Link
-                  href={`/sign-up?callbackUrl=/menu/${authPromptItem._id}`}
-                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-850 py-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-300 transition hover:bg-zinc-200 dark:hover:bg-zinc-800 text-center"
-                >
-                  Create a New Account
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
