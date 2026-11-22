@@ -229,10 +229,59 @@ export default function AdminDashboardPage() {
       if (vipRes.status === "fulfilled" && vipRes.value.success && Array.isArray(vipRes.value.data)) {
         setVipMembers(vipRes.value.data);
       }
+
+      // Add wait time so admin sees loading feedback when refreshing/updating data
+      await new Promise((resolve) => setTimeout(resolve, 600));
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Error loading administrative data.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle Permanently Delete User
+  const handleDeleteUser = async (targetUser: AdminUser) => {
+    const displayName = targetUser.name || targetUser.email;
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete user "${displayName}" (${targetUser.email})?\n\nThis will remove their profile and credentials from PizzaHub. This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setActionLoadingId(`delete-${targetUser._id}`);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await ensureApiToken();
+      const res = await api.delete<{ message: string }>(`/users/${targetUser._id}`);
+
+      // Visual wait time for loading feedback
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      if (res.success) {
+        const msg = `User "${displayName}" has been permanently deleted.`;
+        setSuccessMessage(msg);
+        showToast.warning("User Deleted 🗑️", msg);
+
+        // Update local users list
+        setUsers((prev) => prev.filter((u) => u._id !== targetUser._id));
+        // Also remove from VIP list if present
+        setVipMembers((prev) =>
+          prev.filter((m) => m.userId !== targetUser._id && m.email !== targetUser.email)
+        );
+      } else {
+        const errMsg = res.message || "Failed to delete user.";
+        setErrorMessage(errMsg);
+        showToast.error("Delete Failed", errMsg);
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Error deleting user.";
+      setErrorMessage(errMsg);
+      showToast.error("Error", errMsg);
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
@@ -663,7 +712,17 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/60">
-                    {filteredUsers.length === 0 ? (
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center">
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+                            <p className="text-xs font-semibold text-zinc-300">Loading user accounts...</p>
+                            <span className="text-[11px] text-zinc-500">Waiting for latest updates to sync</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredUsers.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="py-8 text-center text-zinc-500">
                           No users found matching your search criteria.
@@ -727,22 +786,37 @@ export default function AdminDashboardPage() {
                               {isSelf ? (
                                 <span className="text-[11px] text-zinc-500 italic">Current Admin</span>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleBlock(u)}
-                                  disabled={actionLoadingId === u._id}
-                                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition disabled:opacity-50 cursor-pointer ${
-                                    u.isBlocked
-                                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30"
-                                      : "bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30"
-                                  }`}
-                                >
-                                  {actionLoadingId === u._id
-                                    ? "Updating..."
-                                    : u.isBlocked
-                                    ? "Unblock User"
-                                    : "Block User"}
-                                </button>
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleBlock(u)}
+                                    disabled={actionLoadingId === u._id || actionLoadingId === `delete-${u._id}`}
+                                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition disabled:opacity-50 cursor-pointer ${
+                                      u.isBlocked
+                                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30"
+                                        : "bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30"
+                                    }`}
+                                  >
+                                    {actionLoadingId === u._id
+                                      ? "Updating..."
+                                      : u.isBlocked
+                                      ? "Unblock"
+                                      : "Block"}
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteUser(u)}
+                                    disabled={actionLoadingId === u._id || actionLoadingId === `delete-${u._id}`}
+                                    className="rounded-xl border border-red-500/30 bg-red-500/15 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500/25 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                                    title={`Permanently delete user ${u.name || u.email}`}
+                                  >
+                                    <span>🗑️</span>
+                                    <span>
+                                      {actionLoadingId === `delete-${u._id}` ? "Deleting..." : "Delete User"}
+                                    </span>
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -788,7 +862,13 @@ export default function AdminDashboardPage() {
 
             {/* Pizzas Grid */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredMenuItems.length === 0 ? (
+              {loading ? (
+                <div className="col-span-full py-16 text-center">
+                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+                  <p className="mt-3 text-xs font-semibold text-zinc-300">Loading menu items...</p>
+                  <span className="text-[11px] text-zinc-500">Waiting for latest updates to sync</span>
+                </div>
+              ) : filteredMenuItems.length === 0 ? (
                 <div className="col-span-full rounded-2xl border border-dashed border-zinc-800 p-8 text-center text-zinc-500">
                   No menu items found.
                 </div>
@@ -932,7 +1012,17 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/60">
-                    {filteredOrders.length === 0 ? (
+                    {loading ? (
+                      <tr>
+                        <td colSpan={7} className="py-12 text-center">
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+                            <p className="text-xs font-semibold text-zinc-300">Loading platform orders...</p>
+                            <span className="text-[11px] text-zinc-500">Waiting for live order status updates</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredOrders.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-8 text-center text-zinc-500">
                           No platform orders found.
@@ -1009,7 +1099,17 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/60">
-                    {transactions.length === 0 ? (
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center">
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+                            <p className="text-xs font-semibold text-zinc-300">Loading verified transactions...</p>
+                            <span className="text-[11px] text-zinc-500">Retrieving Stripe revenue records</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : transactions.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="py-8 text-center text-zinc-500">
                           No transactions recorded yet.
@@ -1085,7 +1185,13 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Members Table */}
-            {filteredVipMembers.length === 0 ? (
+            {loading ? (
+              <div className="rounded-2xl border border-zinc-800 p-12 text-center bg-[#141418]">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-3 border-amber-500 border-t-transparent" />
+                <p className="mt-3 text-xs font-semibold text-zinc-300">Loading VIP Club members...</p>
+                <span className="text-[11px] text-zinc-500">Waiting for latest membership roster</span>
+              </div>
+            ) : filteredVipMembers.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-zinc-800 p-12 text-center bg-zinc-950/40">
                 <span className="text-4xl">🍕</span>
                 <h4 className="mt-4 text-base font-bold text-white">No VIP Members Found</h4>

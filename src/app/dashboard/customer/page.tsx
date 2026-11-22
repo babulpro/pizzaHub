@@ -100,6 +100,9 @@ export default function CustomerDashboardPage() {
     try {
       await ensureApiToken();
       const res = await api.get<CustomerOrder[]>("/orders/my-orders");
+      // Wait for a time to show loading and view latest order updates
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
       if (res.success && Array.isArray(res.data)) {
         setOrders(res.data);
       } else {

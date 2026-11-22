@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
+import { getDb } from "@/lib/mongodb";
 import {
   joinVipMemberService,
   getVipMembersService,
@@ -130,6 +132,82 @@ async function handleProxy(
           user?.id || user?._id
         );
         return NextResponse.json(result, { status: 200 });
+      }
+    }
+
+    // Direct MongoDB fallback for /users routes (e.g. DELETE /users/:id) if remote server returns 404 or fails
+    if ((!response || response.status === 404 || !response.ok) && subPath.startsWith("users")) {
+      const db = await getDb();
+      const usersCollection = db.collection("users");
+
+      if (req.method === "DELETE" && subPath.startsWith("users/")) {
+        const targetId = subPath.replace("users/", "").trim();
+        if (targetId) {
+          const userObjId = ObjectId.isValid(targetId) ? new ObjectId(targetId) : null;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const query: any = userObjId
+            ? { $or: [{ _id: userObjId }, { _id: targetId }] }
+            : { _id: targetId };
+
+          const user = await usersCollection.findOne(query);
+          if (user) {
+            await usersCollection.deleteOne(query);
+
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const accountConditions: any[] = [{ userId: targetId }, { accountId: targetId }];
+              if (userObjId) accountConditions.push({ userId: userObjId });
+              await db.collection("accounts").deleteMany({ $or: accountConditions });
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const sessionConditions: any[] = [{ userId: targetId }];
+              if (userObjId) sessionConditions.push({ userId: userObjId });
+              await db.collection("sessions").deleteMany({ $or: sessionConditions });
+
+              await db.collection("vip_members").deleteMany({
+                $or: [{ userId: targetId }, { email: user.email }],
+              });
+            } catch (cleanupErr) {
+              console.warn("Cleanup warning in proxy fallback:", cleanupErr);
+            }
+
+            return NextResponse.json({
+              success: true,
+              message: `User "${user.name || user.email}" was deleted permanently.`,
+            });
+          } else {
+            return NextResponse.json(
+              { success: false, message: "User not found." },
+              { status: 404 }
+            );
+          }
+        }
+      }
+
+      if (req.method === "PATCH" && subPath.includes("/block")) {
+        const targetId = subPath.replace("users/", "").replace("/block", "").trim();
+        if (targetId) {
+          const userObjId = ObjectId.isValid(targetId) ? new ObjectId(targetId) : null;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const query: any = userObjId
+            ? { $or: [{ _id: userObjId }, { _id: targetId }] }
+            : { _id: targetId };
+
+          const user = await usersCollection.findOne(query);
+          if (user) {
+            const nextBlockedState = !user.isBlocked;
+            await usersCollection.updateOne(query, {
+              $set: { isBlocked: nextBlockedState, updatedAt: new Date() },
+            });
+            return NextResponse.json({
+              success: true,
+              message: nextBlockedState
+                ? `User ${user.name} has been blocked.`
+                : `User ${user.name} has been unblocked.`,
+              isBlocked: nextBlockedState,
+            });
+          }
+        }
       }
     }
 

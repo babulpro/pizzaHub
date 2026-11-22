@@ -161,6 +161,9 @@ export default function VendorDashboardPage() {
       if (ordersRes.success && Array.isArray(ordersRes.data)) {
         setOrders(ordersRes.data);
       }
+
+      // Wait for a time to show loading and view latest kitchen menu & order updates
+      await new Promise((resolve) => setTimeout(resolve, 600));
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Error connecting to server.");
     } finally {
