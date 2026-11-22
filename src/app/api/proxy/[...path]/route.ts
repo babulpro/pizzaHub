@@ -40,6 +40,22 @@ async function handleProxy(
     const contentType = req.headers.get("content-type");
     if (contentType) headers.set("content-type", contentType);
 
+    // Forward origin, referer, and x-client-url so downstream backend knows the exact client domain
+    const incomingOrigin =
+      req.headers.get("origin") ||
+      (req.headers.get("referer") ? new URL(req.headers.get("referer")!).origin : null) ||
+      (req.headers.get("x-forwarded-host")
+        ? `https://${req.headers.get("x-forwarded-host")}`
+        : null) ||
+      req.nextUrl.origin ||
+      "https://pizzahub-ruddy-gamma.vercel.app";
+
+    headers.set("origin", incomingOrigin);
+    headers.set("x-client-url", incomingOrigin);
+    if (req.headers.get("referer")) {
+      headers.set("referer", req.headers.get("referer")!);
+    }
+
     const init: RequestInit = {
       method: req.method,
       headers,
@@ -114,9 +130,25 @@ async function handleProxy(
 
         // 1. Create Checkout Session
         if (subPath === "stripe/create-checkout-session" && req.method === "POST") {
+          let bodyJson: { clientUrl?: string } = {};
+          try {
+            bodyJson = JSON.parse(rawBody || "{}");
+          } catch {
+            // ignore
+          }
+
           const userEmail = payload?.email || "vendor@pizzahub.com";
           const userId = payload?.id || payload?._id || "";
-          const clientUrl = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
+          const rawClientUrl =
+            bodyJson.clientUrl ||
+            req.headers.get("x-client-url") ||
+            req.headers.get("origin") ||
+            (req.headers.get("referer") ? new URL(req.headers.get("referer")!).origin : null) ||
+            (req.headers.get("x-forwarded-host") ? `https://${req.headers.get("x-forwarded-host")}` : null) ||
+            req.nextUrl.origin ||
+            process.env.CLIENT_URL ||
+            "https://pizzahub-ruddy-gamma.vercel.app";
+          const clientUrl = rawClientUrl.replace(/\/+$/, "");
 
           try {
             const session = await stripe.checkout.sessions.create({

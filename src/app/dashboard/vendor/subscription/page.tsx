@@ -116,7 +116,14 @@ export default function VendorSubscriptionPage() {
     );
     try {
       await ensureApiToken();
-      const res = await api.post<{ url: string; sessionId?: string }>("/stripe/create-checkout-session");
+      const clientUrl =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "https://pizzahub-ruddy-gamma.vercel.app";
+      const res = await api.post<{ url: string; sessionId?: string }>(
+        "/stripe/create-checkout-session",
+        { clientUrl }
+      );
       const checkoutUrl =
         (res.data as { url?: string })?.url ||
         (typeof res.url === "string" ? res.url : "");
