@@ -67,59 +67,13 @@ async function handleProxy(
       init.body = rawBody;
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    init.signal = controller.signal;
-
-    let response: Response | null = null;
-    try {
-      response = await fetch(targetUrl, init);
-    } catch (fetchErr) {
-      console.warn(`[Proxy] Remote fetch to ${targetUrl} timed out or failed:`, fetchErr);
-    } finally {
-      clearTimeout(timeoutId);
-    }
-
-    // Direct MongoDB fallback for /menu if remote backend is slow, down, or fails
-    if ((!response || !response.ok) && req.method === "GET") {
-      if (subPath === "menu") {
-        const category = req.nextUrl.searchParams.get("category") || undefined;
-        const location = req.nextUrl.searchParams.get("location") || undefined;
-        const searchParam = req.nextUrl.searchParams.get("search") || undefined;
-        const sortBy = req.nextUrl.searchParams.get("sortBy") || undefined;
-        const dbItems = await getMenuItemsFromDb({ category, location, search: searchParam, sortBy });
-        return NextResponse.json({ success: true, count: dbItems.length, data: dbItems });
-      }
-
-      if (subPath.startsWith("menu/")) {
-        const itemId = subPath.replace("menu/", "");
-        const dbItem = await getMenuItemByIdFromDb(itemId);
-        if (dbItem) {
-          return NextResponse.json({ success: true, data: dbItem });
-        }
-      }
-    }
-
-    // Enrich single menu item with vendor data if remote returned data without vendor
-    if (response && response.ok && req.method === "GET" && subPath.startsWith("menu/")) {
-      try {
-        const textData = await response.text();
-        const json = JSON.parse(textData);
-        if (json?.data && !json.data.vendor && json.data.vendorId) {
-          const itemId = subPath.replace("menu/", "");
-          const dbItem = await getMenuItemByIdFromDb(itemId);
-          if (dbItem?.vendor) {
-            json.data.vendor = dbItem.vendor;
-          }
-        }
-        return NextResponse.json(json);
-      } catch {
-        // fallback to standard stream
-      }
-    }
-
-    // Direct Stripe handling and fallback (Session Creation & Payment Verification)
-    if ((!response || !response.ok) && subPath.startsWith("stripe")) {
+    // =========================================================================
+    // Native Stripe Handling (Session Creation, Verification & Direct Activation)
+    // Handled directly inside Next.js on Vercel to guarantee redirect URLs point to
+    // https://pizzahub-ruddy-gamma.vercel.app and avoid old localhost redirects
+    // from any outdated standalone server deployments.
+    // =========================================================================
+    if (subPath.startsWith("stripe")) {
       const stripeSecretKey = (process.env.STRIPE_SECRET_KEY || "").trim();
       const authHeader = auth || "";
       const payload = parseJwtPayload(authHeader);
@@ -304,6 +258,59 @@ async function handleProxy(
         }
       }
     }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    init.signal = controller.signal;
+
+    let response: Response | null = null;
+    try {
+      response = await fetch(targetUrl, init);
+    } catch (fetchErr) {
+      console.warn(`[Proxy] Remote fetch to ${targetUrl} timed out or failed:`, fetchErr);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    // Direct MongoDB fallback for /menu if remote backend is slow, down, or fails
+    if ((!response || !response.ok) && req.method === "GET") {
+      if (subPath === "menu") {
+        const category = req.nextUrl.searchParams.get("category") || undefined;
+        const location = req.nextUrl.searchParams.get("location") || undefined;
+        const searchParam = req.nextUrl.searchParams.get("search") || undefined;
+        const sortBy = req.nextUrl.searchParams.get("sortBy") || undefined;
+        const dbItems = await getMenuItemsFromDb({ category, location, search: searchParam, sortBy });
+        return NextResponse.json({ success: true, count: dbItems.length, data: dbItems });
+      }
+
+      if (subPath.startsWith("menu/")) {
+        const itemId = subPath.replace("menu/", "");
+        const dbItem = await getMenuItemByIdFromDb(itemId);
+        if (dbItem) {
+          return NextResponse.json({ success: true, data: dbItem });
+        }
+      }
+    }
+
+    // Enrich single menu item with vendor data if remote returned data without vendor
+    if (response && response.ok && req.method === "GET" && subPath.startsWith("menu/")) {
+      try {
+        const textData = await response.text();
+        const json = JSON.parse(textData);
+        if (json?.data && !json.data.vendor && json.data.vendorId) {
+          const itemId = subPath.replace("menu/", "");
+          const dbItem = await getMenuItemByIdFromDb(itemId);
+          if (dbItem?.vendor) {
+            json.data.vendor = dbItem.vendor;
+          }
+        }
+        return NextResponse.json(json);
+      } catch {
+        // fallback to standard stream
+      }
+    }
+
+
 
     // Direct fallback for auth/token & auth/login if remote backend fails or times out
     if ((!response || !response.ok) && subPath.startsWith("auth/")) {

@@ -55,17 +55,6 @@ function SignInContent() {
     }
   }, [searchParams]);
 
-  const fillDemoAccount = (demoEmail: string, demoPass: string, demoRole?: Role) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    if (demoRole) setRole(demoRole);
-    setError(null);
-    showToast.info(
-      "Demo Account Selected",
-      `Loaded credentials for ${demoEmail}`
-    );
-  };
-
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -159,39 +148,6 @@ function SignInContent() {
       <div className="space-y-6">
         <SocialButtons role={role} onError={setError} />
         <Divider />
-
-        {/* 1-Click Demo Credentials */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100/90 dark:bg-[#16161b] p-3.5 shadow-sm"
-        >
-          <div className="flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-400 mb-2.5">
-            <span className="font-bold text-amber-600 dark:text-amber-400">⚡ 1-Click Demo Logins:</span>
-            <span className="text-zinc-500">Auto-fills credentials</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => fillDemoAccount("marco@fornonapoli.com", "12345678", "vendor")}
-              className="rounded-xl border border-amber-500/40 bg-amber-500/15 py-2 px-2.5 text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition text-center cursor-pointer shadow-xs"
-            >
-              👨‍🍳 Vendor Demo
-            </motion.button>
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => fillDemoAccount("amina@customer.com", "12345678", "customer")}
-              className="rounded-xl border border-orange-500/40 bg-orange-500/15 py-2 px-2.5 text-xs font-bold text-orange-800 dark:text-orange-300 hover:bg-orange-500/25 transition text-center cursor-pointer shadow-xs"
-            >
-              🍕 Customer Demo
-            </motion.button>
-          </div>
-        </motion.div>
 
         <form onSubmit={onSubmit} className="space-y-5" noValidate={false}>
           <AuthAlert message={error} />
