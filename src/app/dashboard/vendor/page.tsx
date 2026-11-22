@@ -526,7 +526,7 @@ export default function VendorDashboardPage() {
 
               <p className="mt-1 text-xs text-zinc-400 max-w-2xl leading-relaxed">
                 {quota.isPremium
-                  ? "Your pizzeria enjoys unlimited menu listings, priority search placement on PizzaHub, and instant Stripe payouts."
+                  ? "Your pizzeria enjoys unlimited menu listings, priority search placement on PizzaHub, and direct verified Stripe payouts."
                   : "Free vendor kitchens can publish up to 3 active pizzas. Upgrade to Gold Premium to publish unlimited menu items and get featured placement with a Gold badge!"}
               </p>
 

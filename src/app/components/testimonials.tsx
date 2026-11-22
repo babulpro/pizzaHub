@@ -26,7 +26,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "As an artisan pizzaiolo, PizzaHub's vendor dashboard made expanding our kitchen seamless. The Gold Premium placement immediately boosted our weekly orders by 300%.",
+      "As an artisan pizzaiolo, PizzaHub's vendor dashboard made expanding our kitchen seamless. The Gold Premium placement substantially boosted our kitchen reach and brought in enthusiastic new regulars.",
     author: "Marco Bellini",
     role: "Head Chef & Pizzeria Owner",
     location: "Banani, Dhaka",

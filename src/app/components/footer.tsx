@@ -156,7 +156,7 @@ export default function Footer() {
             {/* Social Icons */}
             <div className="mt-6 flex items-center gap-3">
               <a
-                href="https://twitter.com"
+                href="https://x.com/pizzahub_bd"
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/60 text-xs text-zinc-300 transition hover:border-amber-500 hover:text-amber-400"
@@ -165,7 +165,7 @@ export default function Footer() {
                 𝕏
               </a>
               <a
-                href="https://instagram.com"
+                href="https://instagram.com/pizzahub_bd"
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/60 text-xs text-zinc-300 transition hover:border-amber-500 hover:text-amber-400"
@@ -174,7 +174,7 @@ export default function Footer() {
                 📸
               </a>
               <a
-                href="https://github.com/babulpro/PizzaHub-Server"
+                href="https://github.com/babulpro/PizzaHub"
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/60 text-xs text-zinc-300 transition hover:border-amber-500 hover:text-amber-400"
@@ -193,21 +193,21 @@ export default function Footer() {
             <ul className="mt-4 space-y-2.5 text-xs">
               <li>
                 <Link href="/menu" className="transition hover:text-amber-400">
-                  All 15+ Artisan Pizzas
+                  All Artisan Pizzas
                 </Link>
               </li>
               <li>
-                <Link href="/menu" className="transition hover:text-amber-400">
+                <Link href="/menu?category=Classic%20Pizzas" className="transition hover:text-amber-400">
                   Classic Neapolitan Pizzas
                 </Link>
               </li>
               <li>
-                <Link href="/menu" className="transition hover:text-amber-400">
+                <Link href="/menu?category=Gourmet%20Pizzas" className="transition hover:text-amber-400">
                   Gourmet & Truffle Pies
                 </Link>
               </li>
               <li>
-                <Link href="/menu" className="transition hover:text-amber-400">
+                <Link href="/menu?category=Spicy%20Specials" className="transition hover:text-amber-400">
                   Spicy Calabrese Specials
                 </Link>
               </li>
@@ -267,49 +267,44 @@ export default function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5 text-xs">
               <li>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal("about")}
+                <Link
+                  href="/about"
                   className="text-left transition hover:text-amber-400"
                 >
                   About PizzaHub
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal("privacy")}
+                <Link
+                  href="/privacy"
                   className="text-left transition hover:text-amber-400"
                 >
                   Privacy Policy
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal("terms")}
+                <Link
+                  href="/terms"
                   className="text-left transition hover:text-amber-400"
                 >
                   Terms of Service
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal("refunds")}
+                <Link
+                  href="/refunds"
                   className="text-left transition hover:text-amber-400"
                 >
                   Refund & Cancellation Policy
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal("allergens")}
+                <Link
+                  href="/allergens"
                   className="text-left transition hover:text-amber-400"
                 >
                   Food Safety & Allergens
-                </button>
+                </Link>
               </li>
               <li>
                 <a
@@ -366,23 +361,28 @@ export default function Footer() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex w-full max-w-sm items-center gap-2">
-                <input
-                  type="email"
-                  required
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {loading ? "Joining..." : "Join Free"}
-                </button>
-              </form>
+              <div className="w-full max-w-sm">
+                <form onSubmit={handleSubscribe} className="flex w-full items-center gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    {loading ? "Joining..." : "Join Free"}
+                  </button>
+                </form>
+                <p className="mt-2 text-[10px] text-zinc-500">
+                  By joining, you agree to receive artisan drop announcements. We respect your privacy — no spam, unsubscribe anytime.
+                </p>
+              </div>
             )}
           </div>
           {message && !subscribed && (

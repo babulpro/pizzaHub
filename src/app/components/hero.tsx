@@ -114,16 +114,16 @@ export default function Hero() {
               className="mt-10 grid grid-cols-3 gap-4 border-t border-zinc-200 dark:border-zinc-800/80 pt-6 text-left w-full sm:max-w-md"
             >
               <div>
-                <p className="text-xl font-extrabold text-zinc-900 dark:text-white">4.9/5</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">10k+ Happy Foodies</p>
+                <p className="text-xl font-extrabold text-zinc-900 dark:text-white">Top Rated</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Verified Local Foodies</p>
               </div>
               <div>
-                <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400">25-35m</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Oven-to-Door Delivery</p>
+                <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400">Fast</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Oven-Fresh Delivery</p>
               </div>
               <div>
-                <p className="text-xl font-extrabold text-orange-600 dark:text-orange-400">100%</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Artisan Wood-Fired</p>
+                <p className="text-xl font-extrabold text-orange-600 dark:text-orange-400">Artisan</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Stone & Wood Ovens</p>
               </div>
             </motion.div>
 

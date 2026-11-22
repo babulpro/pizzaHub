@@ -376,7 +376,7 @@ export default function VendorSubscriptionPage() {
                 <li className="flex items-center gap-2.5">
                   <span className="text-amber-400 font-bold">★</span>
                   <span>
-                    <strong>Instant Stripe Billing</strong> & secure automated invoices
+                    <strong>Secure Stripe Billing</strong> & automated digital invoices
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">

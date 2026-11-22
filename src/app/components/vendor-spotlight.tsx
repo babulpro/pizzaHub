@@ -158,11 +158,11 @@ export default function VendorSpotlight() {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-amber-600 dark:text-amber-400 font-bold">★</span>
-                  <span>Instant Stripe payouts with automated billing</span>
+                  <span>Direct verified Stripe payouts & automated billing</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-amber-600 dark:text-amber-400 font-bold">★</span>
-                  <span>24/7 dedicated chef support and analytics</span>
+                  <span>Dedicated kitchen partner support & live analytics</span>
                 </li>
               </ul>
             </div>

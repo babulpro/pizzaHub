@@ -100,6 +100,27 @@ export default function MenuClient({
     }
   }, [initialItems]);
 
+  // Synchronize category/search/location state when URL searchParams update
+  useEffect(() => {
+    if (initialParams?.category !== undefined) {
+      setSelectedCategory(initialParams.category || "All");
+    }
+    if (initialParams?.search !== undefined) {
+      setSearch(initialParams.search || "");
+    }
+    if (initialParams?.location !== undefined) {
+      setSelectedLocation(initialParams.location || "all");
+    }
+    if (initialParams?.sortBy !== undefined) {
+      setSortBy(initialParams.sortBy || "featured");
+    }
+  }, [
+    initialParams?.category,
+    initialParams?.search,
+    initialParams?.location,
+    initialParams?.sortBy,
+  ]);
+
   // Fetch menu when user changes interactive filters
   const fetchMenu = async () => {
     setLoading(true);
