@@ -209,6 +209,59 @@ async function handleProxy(
           }
         }
       }
+
+      // Profile View & Update (including shop/business name) fallback
+      if (subPath === "users/profile") {
+        const authHeader = auth || "";
+        const payload = parseJwtPayload(authHeader);
+        if (payload?.email || payload?.id) {
+          const userIdStr = (payload.id || payload._id || "").toString();
+          const userObjId = ObjectId.isValid(userIdStr) ? new ObjectId(userIdStr) : null;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const queryConditions: any[] = [{ email: payload.email }];
+          if (userIdStr) queryConditions.push({ _id: userIdStr });
+          if (userObjId) queryConditions.push({ _id: userObjId });
+          const userQuery = { $or: queryConditions };
+
+          if (req.method === "GET") {
+            const user = await usersCollection.findOne(userQuery, { projection: { password: 0 } });
+            if (user) {
+              return NextResponse.json({ success: true, data: user });
+            }
+          }
+
+          if (req.method === "PATCH") {
+            let bodyJson: Record<string, unknown> = {};
+            try {
+              bodyJson = JSON.parse(rawBody || "{}");
+            } catch {
+              // ignore
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const updateFields: any = { updatedAt: new Date() };
+            if (typeof bodyJson.name === "string" && bodyJson.name.trim()) {
+              updateFields.name = bodyJson.name.trim();
+            }
+            if (typeof bodyJson.image === "string") updateFields.image = bodyJson.image.trim();
+            if (typeof bodyJson.phone === "string") updateFields.phone = bodyJson.phone.trim();
+            if (typeof bodyJson.address === "string") updateFields.address = bodyJson.address.trim();
+            if (typeof bodyJson.businessName === "string") {
+              updateFields.businessName = bodyJson.businessName.trim();
+            }
+
+            await usersCollection.updateOne(userQuery, { $set: updateFields });
+            const updatedUser = await usersCollection.findOne(userQuery, { projection: { password: 0 } });
+
+            return NextResponse.json({
+              success: true,
+              message: "Profile & shop name updated successfully.",
+              data: updatedUser,
+              user: updatedUser,
+            });
+          }
+        }
+      }
     }
 
     if (!response) {

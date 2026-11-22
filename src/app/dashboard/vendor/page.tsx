@@ -60,6 +60,51 @@ const CATEGORIES = [
   "Spicy Specials",
 ];
 
+const ARTISAN_PRESETS = [
+  {
+    name: "Classic Margherita",
+    category: "Classic Pizzas",
+    isVeg: true,
+    isSpicy: false,
+    url: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Burrata & Pesto",
+    category: "Gourmet Pizzas",
+    isVeg: true,
+    isSpicy: false,
+    url: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Calabria Pepperoni",
+    category: "Spicy Specials",
+    isVeg: false,
+    isSpicy: true,
+    url: "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Truffle & Bresaola",
+    category: "Gourmet Pizzas",
+    isVeg: false,
+    isSpicy: false,
+    url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Fiery Diavola",
+    category: "Spicy Specials",
+    isVeg: false,
+    isSpicy: true,
+    url: "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Quattro Formaggi",
+    category: "Classic Pizzas",
+    isVeg: true,
+    isSpicy: false,
+    url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
+  },
+];
+
 export default function VendorDashboardPage() {
   const router = useRouter();
   const { data: session, isPending: isAuthPending } = useSession();
@@ -82,6 +127,26 @@ export default function VendorDashboardPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Vendor Shop Profile State (Shop Name Update)
+  const [vendorShopName, setVendorShopName] = useState(user?.businessName || "");
+  const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false);
+  const [editShopName, setEditShopName] = useState(user?.businessName || "");
+  const [editChefName, setEditChefName] = useState(user?.name || "");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [savingShop, setSavingShop] = useState(false);
+  const [shopError, setShopError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.businessName) {
+      setVendorShopName(user.businessName);
+      setEditShopName(user.businessName);
+    }
+    if (user?.name) {
+      setEditChefName(user.name);
+    }
+  }, [user?.businessName, user?.name]);
+
   // Orders Filter
   const [orderFilter, setOrderFilter] = useState<string>("all");
 
@@ -97,8 +162,10 @@ export default function VendorDashboardPage() {
       .reduce((sum, o) => sum + (o.item?.price || 0), 0);
   }, [orders]);
 
-  // Add Item Modal State
+  // Add Item Modal State & Cloudinary / Direct URL options
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [imageUploadMode, setImageUploadMode] = useState<"upload" | "url">("upload");
+  const [directImageUrl, setDirectImageUrl] = useState("");
   const [formName, setFormName] = useState("");
   const [formCategory, setFormCategory] = useState("Classic Pizzas");
   const [formDesc, setFormDesc] = useState("");
@@ -123,6 +190,33 @@ export default function VendorDashboardPage() {
     try {
       // Ensure backend JWT token is synced with active session
       await ensureApiToken();
+
+      // Fetch user profile to get latest shop/business name & phone & address
+      try {
+        const profileRes = await api.get<{
+          businessName?: string;
+          name?: string;
+          phone?: string;
+          address?: string;
+        }>("/users/profile");
+        const profileData = (profileRes.data || profileRes) as {
+          businessName?: string;
+          name?: string;
+          phone?: string;
+          address?: string;
+        } | undefined;
+        if (profileData) {
+          if (profileData.businessName) {
+            setVendorShopName(profileData.businessName);
+            setEditShopName(profileData.businessName);
+          }
+          if (profileData.name) setEditChefName(profileData.name);
+          if (profileData.phone) setEditPhone(profileData.phone);
+          if (profileData.address) setEditAddress(profileData.address);
+        }
+      } catch {
+        // non-blocking
+      }
 
       // 1. Fetch vendor's menu items & quota
       const itemsRes = await api.get<VendorMenuItem[]>("/menu/vendor/my-items");
@@ -252,7 +346,52 @@ export default function VendorDashboardPage() {
     setIsAddModalOpen(true);
   };
 
-  // Handle Add Item Submission (Cloudinary Upload -> POST /api/menu)
+    // Handle Save Shop Profile (Business Name & Location Update)
+  const handleSaveShopProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShopError(null);
+
+    if (!editShopName.trim()) {
+      setShopError("Pizzeria / shop name is required.");
+      return;
+    }
+
+    setSavingShop(true);
+    try {
+      await ensureApiToken();
+      const res = await api.patch<{
+        success: boolean;
+        message?: string;
+        data?: { businessName?: string; name?: string };
+      }>("/users/profile", {
+        businessName: editShopName.trim(),
+        name: editChefName.trim(),
+        phone: editPhone.trim(),
+        address: editAddress.trim(),
+      });
+
+      if (res.success) {
+        setVendorShopName(editShopName.trim());
+        showToast.pizza(
+          "Shop Name Updated! 🍕",
+          `Your pizzeria name is now "${editShopName.trim()}".`
+        );
+        setIsEditShopModalOpen(false);
+      } else {
+        const msg = res.message || "Failed to update shop profile.";
+        setShopError(msg);
+        showToast.error("Update Failed", msg);
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Error saving shop profile.";
+      setShopError(errMsg);
+      showToast.error("Error", errMsg);
+    } finally {
+      setSavingShop(false);
+    }
+  };
+
+  // Handle Add Item Submission (Cloudinary Upload OR Direct URL/Presets -> POST /api/menu)
   const handleCreatePizza = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError(null);
@@ -271,8 +410,10 @@ export default function VendorDashboardPage() {
       return;
     }
 
-    if (!selectedFile && !imagePreview) {
-      setModalError("Please select a pizza image to upload.");
+    const effectiveImageUrl = (directImageUrl.trim() || imagePreview || "").trim();
+
+    if (!selectedFile && !effectiveImageUrl) {
+      setModalError("Please select an image file to upload, enter an image URL, or pick an artisan preset.");
       return;
     }
 
@@ -280,23 +421,45 @@ export default function VendorDashboardPage() {
 
     try {
       await ensureApiToken();
-      let uploadedImageUrl = imagePreview || "";
+      let uploadedImageUrl = effectiveImageUrl;
 
       // 1. Upload to Cloudinary if a local file was selected
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
+        try {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
 
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+          const uploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok || !uploadData.success) {
-          throw new Error(uploadData.message || "Failed to upload image to Cloudinary.");
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok || !uploadData.success) {
+            const isDns =
+              uploadData.isDnsError ||
+              (uploadData.message && uploadData.message.includes("ENOTFOUND"));
+            if (isDns) {
+              throw new Error(
+                "Cloudinary connection failed (getaddrinfo ENOTFOUND api.cloudinary.com). Your network or DNS could not resolve api.cloudinary.com. Switch to 'Direct URL / Presets' above or pick one of the quick artisan presets below to publish immediately."
+              );
+            }
+            throw new Error(uploadData.message || "Failed to upload image to Cloudinary.");
+          }
+          uploadedImageUrl = uploadData.url;
+        } catch (uploadErr: unknown) {
+          const errMessage =
+            uploadErr instanceof Error ? uploadErr.message : "Image upload failed.";
+          setModalError(errMessage);
+          // Suggest fallback preset automatically so vendor is not blocked
+          if (!imagePreview) {
+            setImagePreview(ARTISAN_PRESETS[0].url);
+            setDirectImageUrl(ARTISAN_PRESETS[0].url);
+          }
+          setImageUploadMode("url");
+          setSubmittingItem(false);
+          return;
         }
-        uploadedImageUrl = uploadData.url;
       }
 
       // 2. Submit new menu item to backend
@@ -309,7 +472,7 @@ export default function VendorDashboardPage() {
         prepTime: formPrepTime,
         isSpicy: formSpicy,
         isVegetarian: formVeg,
-        images: [uploadedImageUrl],
+        images: [uploadedImageUrl || ARTISAN_PRESETS[0].url],
       });
 
       if (res.success) {
@@ -326,6 +489,7 @@ export default function VendorDashboardPage() {
         setFormPrice("");
         setSelectedFile(null);
         setImagePreview(null);
+        setDirectImageUrl("");
         fetchData();
       } else {
         const errMsg = res.message || "Failed to publish pizza item.";
@@ -447,9 +611,9 @@ export default function VendorDashboardPage() {
                 👨‍🍳
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-2xl font-black text-white">
-                    {user.businessName || `${user.name}'s Artisan Pizzeria`}
+                    {vendorShopName || user.businessName || `${user.name}'s Artisan Pizzeria`}
                   </h1>
                   {quota.isPremium ? (
                     <span className="rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-2.5 py-0.5 text-[10px] font-black uppercase text-black shadow-sm">
@@ -460,9 +624,23 @@ export default function VendorDashboardPage() {
                       Starter Plan
                     </span>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditShopName(vendorShopName || user.businessName || "");
+                      setEditChefName(user.name || "");
+                      setShopError(null);
+                      setIsEditShopModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-400 hover:bg-amber-500/20 transition cursor-pointer"
+                    title="Update Pizzeria / Shop Name"
+                  >
+                    <span>✏️</span>
+                    <span>Edit Shop Name</span>
+                  </button>
                 </div>
                 <p className="mt-1 text-xs text-zinc-400">
-                  {user.email} • Kitchen Hub & Menu Administration
+                  {user.email} • {editAddress ? `${editAddress} • ` : ""}Kitchen Hub & Menu Administration
                 </p>
               </div>
             </div>
@@ -970,14 +1148,41 @@ export default function VendorDashboardPage() {
               </div>
             ) : (
               <form onSubmit={handleCreatePizza} className="mt-6 space-y-4">
-              {/* Photo Upload with Cloudinary */}
+              {/* Photo Input (Cloudinary Upload OR Direct URL / Presets) */}
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Pizza Photo (Uploads to Cloudinary) *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-300">
+                    Pizza Photo *
+                  </label>
+                  <div className="flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 p-0.5 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setImageUploadMode("upload")}
+                      className={`rounded-md px-2.5 py-1 font-semibold transition cursor-pointer ${
+                        imageUploadMode === "upload"
+                          ? "bg-amber-500 text-zinc-950 shadow-xs"
+                          : "text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      📁 Upload File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageUploadMode("url")}
+                      className={`rounded-md px-2.5 py-1 font-semibold transition cursor-pointer ${
+                        imageUploadMode === "url"
+                          ? "bg-amber-500 text-zinc-950 shadow-xs"
+                          : "text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      🔗 Direct URL / Presets
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-4">
                   {imagePreview ? (
-                    <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-500/50">
+                    <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-500/50 shadow-md">
                       <Image
                         src={imagePreview}
                         alt="Preview"
@@ -991,12 +1196,58 @@ export default function VendorDashboardPage() {
                     </div>
                   )}
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="block w-full text-xs text-zinc-400 file:mr-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-zinc-200 hover:file:bg-zinc-750 cursor-pointer"
-                  />
+                  {imageUploadMode === "upload" ? (
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="block w-full text-xs text-zinc-400 file:mr-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-zinc-200 hover:file:bg-zinc-750 cursor-pointer"
+                      />
+                      <p className="mt-1 text-[10px] text-zinc-500">
+                        Uploads directly to Cloudinary CDN. (If your network has DNS issues reaching api.cloudinary.com, click Direct URL / Presets above).
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex-1 space-y-1.5">
+                      <input
+                        type="url"
+                        placeholder="Paste image URL (e.g. https://images.unsplash.com/...)"
+                        value={directImageUrl}
+                        onChange={(e) => {
+                          setDirectImageUrl(e.target.value);
+                          if (e.target.value.trim()) {
+                            setImagePreview(e.target.value.trim());
+                            setSelectedFile(null);
+                          }
+                        }}
+                        className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-white focus:border-amber-500 focus:outline-none"
+                      />
+                      <span className="text-[10px] text-zinc-500 block">
+                        Quick 1-Click Artisan Presets:
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {ARTISAN_PRESETS.map((p, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setImagePreview(p.url);
+                              setDirectImageUrl(p.url);
+                              setSelectedFile(null);
+                              if (!formName) setFormName(p.name);
+                              setFormCategory(p.category);
+                              setFormVeg(p.isVeg);
+                              setFormSpicy(p.isSpicy);
+                            }}
+                            className="rounded-md border border-zinc-800 bg-zinc-850 px-2 py-0.5 text-[10px] text-zinc-300 hover:border-amber-500/50 hover:text-amber-400 transition cursor-pointer"
+                          >
+                            {p.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1146,6 +1397,113 @@ export default function VendorDashboardPage() {
               </div>
             </form>
             )}
+          </div>
+        </div>
+      )}
+      {/* ==================================================== */}
+      {/* UPDATE SHOP NAME & PIZZERIA PROFILE MODAL           */}
+      {/* ==================================================== */}
+      {isEditShopModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-zinc-800 bg-[#16161b] p-6 sm:p-7 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                  Pizzeria Storefront
+                </span>
+                <h3 className="text-xl font-bold text-white mt-0.5">
+                  Update Pizzeria & Shop Name
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditShopModalOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {shopError && (
+              <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-300">
+                {shopError}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveShopProfile} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Pizzeria / Shop Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Forno Napoli Wood-Fired"
+                  value={editShopName}
+                  onChange={(e) => setEditShopName(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  This shop name is displayed on the menu and pizza cards across Dhaka.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Head Chef / Owner Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Marco Bellini"
+                  value={editChefName}
+                  onChange={(e) => setEditChefName(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Kitchen Contact Phone
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. +880 1711-223344"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Dhaka Kitchen Location / Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Road 11, Block D, Banani, Dhaka"
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setIsEditShopModalOpen(false)}
+                  className="rounded-xl border border-zinc-700 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:text-white cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingShop}
+                  className="rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  {savingShop ? "Saving..." : "Save Shop Profile"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
