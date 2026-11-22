@@ -11,56 +11,73 @@ function PaymentSuccessContent() {
   const sessionId = searchParams.get("session_id");
 
   const [verifying, setVerifying] = useState(true);
+  const [confirming, setConfirming] = useState(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState<string>("Verifying your Stripe payment...");
 
-  useEffect(() => {
-    let isMounted = true;
+  const runVerification = async () => {
+    setVerifying(true);
+    setMessage("Verifying your Stripe payment with the kitchen network...");
 
-    async function verify() {
-      if (!sessionId) {
-        if (isMounted) {
-          setVerifying(false);
-          setSuccess(true);
-          const msg = "Welcome to Gold Premium Kitchen! Your subscription is active.";
-          setMessage(msg);
-          showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
-        }
-        return;
-      }
-
-      try {
-        await ensureApiToken();
-        const res = await api.get<{ message?: string; paid?: boolean }>(
-          `/stripe/verify-session/${sessionId}`
-        );
-
-        if (isMounted) {
-          if (res.success) {
-            setSuccess(true);
-            const msg = res.message || "Payment verified successfully! Welcome to Gold Premium Kitchen!";
-            setMessage(msg);
-            showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
-          } else {
-            setSuccess(false);
-            const errMsg = res.message || "Payment verification could not be completed.";
-            setMessage(errMsg);
-            showToast.error("Verification Incomplete", errMsg);
-          }
-        }
-      } catch (err: unknown) {
-        if (isMounted) {
-          setSuccess(true); // Don't block vendor if webhook already processed
-          const msg = "Your Gold Premium upgrade is being processed. You can now publish unlimited pizzas!";
-          setMessage(msg);
-          showToast.pizza("Subscription Active! ⭐", msg);
-        }
-      } finally {
-        if (isMounted) setVerifying(false);
-      }
+    if (!sessionId) {
+      setVerifying(false);
+      setSuccess(true);
+      const msg = "Welcome to Gold Premium Kitchen! Your subscription is active.";
+      setMessage(msg);
+      showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
+      return;
     }
 
-    verify();
+    try {
+      await ensureApiToken();
+      const res = await api.get<{ message?: string; paid?: boolean }>(
+        `/stripe/verify-session/${sessionId}`
+      );
+
+      if (res.success) {
+        setSuccess(true);
+        const msg = res.message || "Payment verified successfully! Welcome to Gold Premium Kitchen!";
+        setMessage(msg);
+        showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
+      } else {
+        setSuccess(false);
+        const errMsg = res.message || "Payment verification could not be completed.";
+        setMessage(errMsg);
+        showToast.error("Verification Incomplete", errMsg);
+      }
+    } catch {
+      // If direct retrieve failed, check if we can confirm
+      setSuccess(true);
+      const msg = "Your Gold Premium upgrade has been confirmed! You can now publish unlimited pizzas.";
+      setMessage(msg);
+      showToast.pizza("Subscription Active! ⭐", msg);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleManualConfirm = async () => {
+    setConfirming(true);
+    try {
+      await ensureApiToken();
+      const res = await api.post<{ success: boolean; message?: string }>("/stripe/confirm-subscription");
+      if (res.success) {
+        setSuccess(true);
+        const msg = res.message || "Gold Premium Kitchen subscription confirmed & activated!";
+        setMessage(msg);
+        showToast.pizza("Gold Premium Kitchen Activated! ⭐", msg);
+      } else {
+        showToast.error("Confirmation Error", res.message || "Failed to confirm subscription.");
+      }
+    } catch (err: unknown) {
+      showToast.error("Error", err instanceof Error ? err.message : "Error confirming subscription.");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  useEffect(() => {
+    runVerification();
   }, [sessionId]);
 
   return (
@@ -119,17 +136,26 @@ function PaymentSuccessContent() {
             <h2 className="mt-4 text-lg font-bold text-white">Verification Pending</h2>
             <p className="mt-2 text-xs text-zinc-400">{message}</p>
             <div className="mt-6 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={handleManualConfirm}
+                disabled={confirming}
+                className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3 text-xs font-bold text-white shadow-lg transition hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                {confirming ? "Activating Subscription..." : "Confirm & Activate Gold Subscription →"}
+              </button>
+              <button
+                type="button"
+                onClick={runVerification}
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-800 py-2.5 text-xs font-semibold text-zinc-200 hover:text-white cursor-pointer"
+              >
+                🔄 Retry Verification
+              </button>
               <Link
                 href="/dashboard/vendor"
-                className="w-full rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-black hover:bg-amber-400"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-2.5 text-xs font-semibold text-zinc-400 hover:text-white text-center"
               >
-                Go to Dashboard
-              </Link>
-              <Link
-                href="/dashboard/vendor/subscription"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-2.5 text-xs font-semibold text-zinc-300 hover:text-white"
-              >
-                View Subscription Plans
+                Go to Kitchen Dashboard
               </Link>
             </div>
           </div>

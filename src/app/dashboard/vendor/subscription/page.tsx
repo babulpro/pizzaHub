@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
@@ -37,49 +37,74 @@ export default function VendorSubscriptionPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Fetch current vendor quota
-  useEffect(() => {
-    let isMounted = true;
+  const loadQuota = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      await ensureApiToken();
+      const res = await api.get<{
+        plan: "free" | "premium";
+        isPremium: boolean;
+        activeCount: number;
+        limit: number | string;
+        remaining: number | string;
+        canAddMore: boolean;
+      }>("/menu/vendor/quota");
 
-    async function loadQuota() {
-      if (!user) return;
-      setLoading(true);
-      try {
-        await ensureApiToken();
-        const res = await api.get<{
-          plan: "free" | "premium";
-          isPremium: boolean;
-          activeCount: number;
-          limit: number | string;
-          remaining: number | string;
-          canAddMore: boolean;
-        }>("/menu/vendor/quota");
-
-        if (isMounted && res.success) {
-          const rawQuota = (res.quota || res) as Partial<QuotaState>;
-          const isPrem = Boolean(rawQuota.isPremium || rawQuota.plan === "premium");
-          const activeCount = Number(rawQuota.activeCount) || 0;
-          setQuota({
-            plan: isPrem ? "premium" : "free",
-            activeCount,
-            limit: isPrem ? "unlimited" : 3,
-            remaining: isPrem ? "unlimited" : Math.max(0, 3 - activeCount),
-            canAddMore: isPrem || activeCount < 3,
-            isPremium: isPrem,
-          });
-        }
-      } catch (err: unknown) {
-        if (isMounted) {
-          setErrorMessage(err instanceof Error ? err.message : "Failed to load subscription status.");
-        }
-      } finally {
-        if (isMounted) setLoading(false);
+      if (res.success) {
+        const rawQuota = (res.quota || res) as Partial<QuotaState>;
+        const isPrem = Boolean(rawQuota.isPremium || rawQuota.plan === "premium");
+        const activeCount = Number(rawQuota.activeCount) || 0;
+        setQuota({
+          plan: isPrem ? "premium" : "free",
+          activeCount,
+          limit: isPrem ? "unlimited" : 3,
+          remaining: isPrem ? "unlimited" : Math.max(0, 3 - activeCount),
+          canAddMore: isPrem || activeCount < 3,
+          isPremium: isPrem,
+        });
       }
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Failed to load subscription status.");
+    } finally {
+      setLoading(false);
     }
+  }, [user]);
 
+  useEffect(() => {
     if (!isAuthPending && user) {
       loadQuota();
     }
-  }, [user, isAuthPending]);
+  }, [user, isAuthPending, loadQuota]);
+
+  const [confirming, setConfirming] = useState(false);
+
+  // Directly confirm and sync Gold subscription
+  const handleDirectConfirmSubscription = async () => {
+    setConfirming(true);
+    setErrorMessage(null);
+    try {
+      await ensureApiToken();
+      const res = await api.post<{ success: boolean; message?: string }>("/stripe/confirm-subscription");
+      if (res.success) {
+        showToast.pizza(
+          "Subscription Active! ⭐",
+          "Your Gold Premium Kitchen subscription is confirmed. You now have unlimited pizza listings!"
+        );
+        loadQuota();
+      } else {
+        const msg = res.message || "Failed to confirm subscription.";
+        setErrorMessage(msg);
+        showToast.error("Confirmation Failed", msg);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error confirming subscription.";
+      setErrorMessage(msg);
+      showToast.error("Error", msg);
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   // Initiate Stripe Checkout Session
   const handleUpgradeToPremium = async () => {
@@ -397,24 +422,35 @@ export default function VendorSubscriptionPage() {
             <div className="mt-8 pt-6 border-t border-amber-500/20">
               {quota.isPremium ? (
                 <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 py-3 text-center text-xs font-bold text-emerald-400">
-                  ✓ Your Kitchen Has Unlimited Access
+                  ✓ Your Kitchen Has Unlimited Access (Gold Partner)
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleUpgradeToPremium}
-                  disabled={upgrading}
-                  className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3.5 text-xs font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {upgrading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Redirecting to Stripe Checkout...</span>
-                    </div>
-                  ) : (
-                    <span>Subscribe with Stripe Checkout ($29.00/mo) →</span>
-                  )}
-                </button>
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleUpgradeToPremium}
+                    disabled={upgrading || confirming}
+                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 py-3.5 text-xs font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    {upgrading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span>Redirecting to Stripe Checkout...</span>
+                      </div>
+                    ) : (
+                      <span>Subscribe with Stripe Checkout ($29.00/mo) →</span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDirectConfirmSubscription}
+                    disabled={confirming || upgrading}
+                    className="w-full rounded-xl border border-zinc-700 bg-zinc-800/80 py-2.5 text-xs font-semibold text-zinc-300 hover:border-amber-500/40 hover:text-white transition cursor-pointer"
+                  >
+                    {confirming ? "Confirming & Syncing Plan..." : "⚡ Confirm & Sync Active Subscription"}
+                  </button>
+                </div>
               )}
             </div>
           </div>

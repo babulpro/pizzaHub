@@ -582,6 +582,7 @@ export default function VendorDashboardPage() {
       "Redirecting to secure subscription portal."
     );
     try {
+      await ensureApiToken();
       const res = await api.post<{ url: string }>("/stripe/create-checkout-session");
       const checkoutUrl = (res.data as { url?: string })?.url || (typeof res.url === "string" ? res.url : "");
       if (res.success && checkoutUrl) {
