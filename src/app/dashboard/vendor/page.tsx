@@ -103,7 +103,7 @@ export default function VendorDashboardPage() {
   const [formCategory, setFormCategory] = useState("Classic Pizzas");
   const [formDesc, setFormDesc] = useState("");
   const [formPrice, setFormPrice] = useState("");
-  const [formLocation, setFormLocation] = useState("Manhattan, NY");
+  const [formLocation, setFormLocation] = useState("Gulshan, Dhaka");
   const [formPrepTime, setFormPrepTime] = useState("20-25 min");
   const [formSpicy, setFormSpicy] = useState(false);
   const [formVeg, setFormVeg] = useState(false);
@@ -1073,7 +1073,7 @@ export default function VendorDashboardPage() {
                   <input
                     type="text"
                     required
-                    placeholder="Manhattan, NY"
+                    placeholder="e.g. Gulshan-2, Dhaka or Dhanmondi, Dhaka"
                     value={formLocation}
                     onChange={(e) => setFormLocation(e.target.value)}
                     className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"

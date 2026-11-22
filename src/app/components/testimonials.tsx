@@ -9,7 +9,7 @@ const TESTIMONIALS = [
       "The leopard spotting on the San Marzano Margherita crust is textbook Neapolitan perfection. It arrived blisteringly hot in just 22 minutes!",
     author: "Sofia Rossi",
     role: "Verified Food Critic",
-    location: "Brooklyn, NY",
+    location: "Gulshan-2, Dhaka",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     favoritePizza: "San Marzano Margherita DOP",
@@ -19,7 +19,7 @@ const TESTIMONIALS = [
       "The Black Truffle & Bresaola pie from Forno Napoli is Michelin-worthy. PizzaHub makes ordering directly from true wood-fired artisans effortless.",
     author: "Marcus Vance",
     role: "Gourmet Pizza Enthusiast",
-    location: "Manhattan, NY",
+    location: "Dhanmondi, Dhaka",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     favoritePizza: "Black Truffle & Bresaola Carpaccio",
@@ -29,7 +29,7 @@ const TESTIMONIALS = [
       "As an artisan pizzaiolo, PizzaHub's vendor dashboard made expanding our kitchen seamless. The Gold Premium placement immediately boosted our weekly orders by 300%.",
     author: "Marco Bellini",
     role: "Head Chef & Pizzeria Owner",
-    location: "Forno Napoli Wood-Fired",
+    location: "Banani, Dhaka",
     avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     favoritePizza: "Diavola Calabrese Piccante",
@@ -56,7 +56,7 @@ export default function Testimonials() {
             Loved By Pizza Connoisseurs
           </h2>
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
-            Hear from New York foodies, critics, and artisan pizzaiolos who trust PizzaHub every single week.
+            Hear from Dhaka foodies, critics, and artisan pizzaiolos who trust PizzaHub every single week.
           </p>
         </motion.div>
 

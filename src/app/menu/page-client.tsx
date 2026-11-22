@@ -40,10 +40,15 @@ export const CATEGORIES = [
 ];
 
 export const LOCATIONS = [
-  { label: "All Locations", value: "all" },
-  { label: "Manhattan, NY", value: "Manhattan" },
-  { label: "Brooklyn, NY", value: "Brooklyn" },
-  { label: "Queens, NY", value: "Queens" },
+  { label: "All Locations (Dhaka)", value: "all" },
+  { label: "Gulshan, Dhaka", value: "Gulshan" },
+  { label: "Banani, Dhaka", value: "Banani" },
+  { label: "Dhanmondi, Dhaka", value: "Dhanmondi" },
+  { label: "Uttara, Dhaka", value: "Uttara" },
+  { label: "Mohakhali, Dhaka", value: "Mohakhali" },
+  { label: "Mirpur, Dhaka", value: "Mirpur" },
+  { label: "Mohammadpur, Dhaka", value: "Mohammadpur" },
+  { label: "Baily Road, Dhaka", value: "Baily Road" },
 ];
 
 export interface MenuClientProps {
@@ -688,7 +693,7 @@ export default function MenuClient({
                       required
                       value={orderAddress}
                       onChange={(e) => setOrderAddress(e.target.value)}
-                      placeholder="e.g. 124 Broadway, Apt 4B, New York, NY"
+                      placeholder="e.g. House 42, Road 11, Block D, Banani, Dhaka"
                       className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-2 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-amber-500"
                     />
                   </div>

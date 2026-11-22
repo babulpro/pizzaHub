@@ -4,7 +4,7 @@
 
 ![PizzaHub Frontend](https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=80)
 
-**Modern, ultra-fast web application powered by Next.js 16 (App Router + Turbopack), React 19, and Tailwind CSS v4.**
+**Modern, ultra-fast web application powered by Next.js 16 (App Router + Turbopack), React 19, and Tailwind CSS v4, built for Dhaka, Bangladesh.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.4.6_(Turbopack)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.3.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
@@ -44,6 +44,8 @@ flowchart TD
         A[User Request] --> B[Next.js App Router]
         I[Client Interactions & Forms] --> J[Server Actions - 'use server']
         I --> K[Reverse Proxy /api/proxy]
+        B --> L[Suspense Root loading.tsx]
+        B --> NF[Custom 404 not-found.tsx]
     end
 
     subgraph ServerComponents ["Next.js Server Runtime (Node.js)"]
@@ -51,15 +53,15 @@ flowchart TD
         C --> D[Partial Prerender - PPR]
         C --> E[Dynamic Metadata generateMetadata]
         C --> F[Direct Server-to-Server Fetch]
-        J --> L[(MongoDB Atlas Connection)]
-        J --> M[revalidatePath Cache Invalidation]
+        J --> M[(MongoDB Atlas Connection)]
+        J --> N[revalidatePath Cache Invalidation]
     end
 
     subgraph External ["External Services"]
-        F --> N[Express API pizzaserver.vercel.app]
-        K --> N
-        I --> O[Cloudinary Direct CDN Uploads]
-        I --> P[Stripe Hosted Checkout]
+        F --> P[Express API pizzaserver.vercel.app]
+        K --> P
+        I --> Q[Cloudinary Direct CDN Uploads]
+        I --> R[Stripe Hosted Checkout]
     end
 ```
 
@@ -70,6 +72,7 @@ flowchart TD
 
 ### 2. Partial Prerendering (PPR) & `<Suspense>` Streaming
 - Uses Next.js 16 Partial Prerendering to deliver an instant static layout shell while streaming dynamic search params and live kitchen menu items in the background.
+- Root `loading.tsx` component provides automatic Suspense-based route transition loading.
 
 ### 3. Server Actions for Mutations
 - Sensitive and state-altering operations (such as the **VIP Club membership pipeline**) are executed via `'use server'` actions in `src/app/actions/vip.ts`.
@@ -82,10 +85,10 @@ flowchart TD
 
 ## 🍕 Key Frontend Features
 
-### 1. Handcrafted Artisan Menu & Interactive Search
+### 1. Handcrafted Artisan Menu & Interactive Search (Dhaka, Bangladesh)
 - **Instant Search:** Debounced multi-field searching by pizza name, sauce, or topping.
 - **Categorization Pills:** `All`, `Classic Pizzas`, `Gourmet Pizzas`, and `Spicy Specials`.
-- **Location Selector:** Neighborhood-level filtering (`Manhattan, NY`, `Brooklyn, NY`, `Queens, NY`, etc.).
+- **Dhaka Location Selector:** Neighborhood-level filtering (`Gulshan`, `Banani`, `Dhanmondi`, `Uttara`, `Mohakhali`, `Mirpur`, `Mohammadpur`, `Baily Road`).
 - **Dietary Badges:** 1-click toggles for `🌶️ Spicy Only` and `🍃 Vegetarian Only`.
 - **Sorting Options:** Featured & Gold Premium First, Price: Low to High, Price: High to Low.
 - **Quick Order Dialog:** Place an order directly from the menu card with delivery address, preferred date, and optional kitchen note.
@@ -95,12 +98,17 @@ flowchart TD
 - **1-Click Promo Vouchers:** Verified discount codes (`HOTCRUST20`, `BOGOPIZZA`, `FREEDROP`, `CHEFSPECIAL`) with copy-to-clipboard functionality and branded toast confirmation.
 - **Artisan Combo Bundles:** Visual package cards with savings badges and item breakdowns.
 
-### 3. Dedicated Role Dashboards
+### 3. Dedicated Role Dashboards & Progressive Sync
+- **🔄 Progressive Dashboard Gateway (`/dashboard`):** Multi-step animated progress bar with ~1.8s wait interval ensuring roles, permissions, and latest updates synchronize before redirecting.
 - **🍕 Customer Dashboard (`/dashboard/customer`):** View active and completed orders, live timeline status trackers, total spent, and 1-click cancellation for pending orders.
-- **👨‍🍳 Vendor Dashboard (`/dashboard/vendor`):** Storefront analytics, pizza inventory management, Cloudinary file uploads, active quota tracking, and order acceptance/decline controls.
-- **⚡ Admin Control Center (`/dashboard/admin`):** Comprehensive platform overview, user moderation (block/unblock), pizza approval pipeline, VIP Club roster, and Stripe revenue analytics.
+- **👨‍🍳 Vendor Dashboard (`/dashboard/vendor`):** Storefront analytics, pizza inventory management with Dhaka locations, Cloudinary file uploads, active quota tracking, and order acceptance/decline controls.
+- **⚡ Admin Control Center (`/dashboard/admin`):** Comprehensive platform overview, user moderation (block/unblock and **permanent user deletion**), pizza approval pipeline, VIP Club roster, and Stripe revenue analytics.
 
-### 4. 1-Click Demo Accounts & Social Authentication
+### 4. Global Loading & Custom 404 Error Pages
+- **Root Loader (`loading.tsx`):** Animated wood-fired oven glow, dual rotating rings, and pulsing pizza slice.
+- **Artisan 404 (`not-found.tsx`):** *"Looks Like This Slice Was Eaten!"* page with direct links back to Menu, Home, Deals, and Dashboard.
+
+### 5. 1-Click Demo Accounts & Social Authentication
 - **1-Click Demo Switcher:** Dedicated buttons on the Sign-In page to immediately test either the **👨‍🍳 Pizzeria Partner** or **🍕 Artisan Foodie** account without typing credentials.
 - **OAuth Providers:** Google and GitHub social logins powered by Better-Auth.
 - **Strict Role Lockdown:** Public registration only allows `customer` or `vendor`. The `admin` role can never be selected or injected during sign-up.
@@ -112,23 +120,25 @@ flowchart TD
 | Route | Type | Description |
 | :--- | :--- | :--- |
 | `/` | `○ (Static / ISR)` | Landing page showcasing hero, live signature pizzas, process & reviews |
+| `/loading` | `ƒ (Automatic)` | Global Suspense route transition screen |
+| `/_not-found` | `○ (Static)` | Custom 404 pizza oven error page (`not-found.tsx`) |
 | `/menu` | `◐ (Partial Prerender)` | Live artisan pizza menu with interactive filters and quick order modal |
 | `/menu/[id]` | `◐ (Partial Prerender)` | Individual pizza recipe details, gallery, chef bio, and full order form |
 | `/deals` | `○ (Static)` | Hot Deals, countdown timer, coupon vouchers, and combo bundles |
 | `/(auth)/sign-in` | `○ (Static)` | User sign-in with 1-click demo logins and OAuth providers |
 | `/(auth)/sign-up` | `○ (Static)` | Role-gated registration (`customer` or `vendor` only) |
+| `/dashboard` | `○ (Static)` | Progressive sync gateway with animated loading steps |
 | `/dashboard/customer` | `○ (Static)` | Foodie orders history, status tracker, and order cancellation |
 | `/dashboard/customer/orders` | `○ (Static)` | Direct shortcut to customer orders view |
 | `/dashboard/vendor` | `○ (Static)` | Kitchen storefront hub, menu CRUD, order review, and active quota |
 | `/dashboard/vendor/subscription` | `○ (Static)` | Quota usage meter & Stripe checkout trigger for Gold Premium tier |
-| `/dashboard/admin` | `○ (Static)` | Super Admin control center (Users, Menu approval, VIP, Transactions) |
+| `/dashboard/admin` | `○ (Static)` | Super Admin control center (Users, Delete User, Menu approval, VIP) |
 | `/subscription` | `○ (Static)` | Public marketing overview comparing Free Starter vs Gold Premium |
 | `/payment/success` | `○ (Static)` | Stripe checkout return page with session verification |
 | `/payment/cancel` | `○ (Static)` | Stripe checkout cancellation return page |
 | `/api/auth/[...all]` | `ƒ (Dynamic)` | Better-Auth backend handlers |
 | `/api/proxy/[...path]` | `ƒ (Dynamic)` | Next.js reverse proxy eliminating browser CORS issues |
 | `/api/upload` | `ƒ (Dynamic)` | Cloudinary image upload route handler |
-| `/_not-found` | `○ (Static)` | Custom 404 pizza oven error page |
 
 ---
 
@@ -155,7 +165,7 @@ showToast.warning("Sign In Required 🔒", "Please sign in to place an order.");
 showToast.error("Order Failed", "Unable to place order. Please try again.");
 
 // ℹ️ Informational Toast
-showToast.info("Filters Reset 🍕", "Showing all handcrafted artisan pizzas.");
+showToast.info("Filters Reset 🍕", "Showing all handcrafted artisan pizzas in Dhaka.");
 ```
 
 ---
@@ -175,7 +185,7 @@ An inline script in `<head>` within `src/app/layout.tsx` checks `localStorage` i
 
 Located at `src/app/api/proxy/[...path]/route.ts`:
 - Browser requests to `/api/proxy/*` are served same-origin by Next.js, eliminating cross-origin (CORS) blocks, mixed-content warnings, and ad-blocker interference.
-- **Dual VIP Execution Fallback:** If the external Express backend returns a 404 for VIP routes, the proxy automatically intercepts and fulfills the operation directly in MongoDB.
+- **Direct Database Fallbacks:** If the external Express backend returns a 404 or fails for VIP or User routes (including user deletions), the proxy automatically intercepts and fulfills the operation directly in MongoDB.
 
 ---
 
@@ -192,22 +202,23 @@ client/
 │   │   │   └── vip.ts                   # VIP Club mutation & revalidatePath
 │   │   ├── api/
 │   │   │   ├── auth/[...all]/route.ts   # Better-Auth server handler
-│   │   │   ├── proxy/[...path]/route.ts # Same-origin API reverse proxy
+│   │   │   ├── proxy/[...path]/route.ts # Same-origin API reverse proxy with fallbacks
 │   │   │   └── upload/route.ts          # Cloudinary direct server upload
 │   │   ├── components/                  # Client and Server UI components
 │   │   │   ├── auth-ui.tsx              # Form fields, role picker & OAuth buttons
 │   │   │   ├── featured-pizzas.tsx      # Signature pies showcase
-│   │   │   ├── footer.tsx               # VIP Club subscription footer
+│   │   │   ├── footer.tsx               # VIP Club subscription & Dhaka delivery footer
 │   │   │   ├── hero.tsx                 # Catchy hero with live stats
 │   │   │   ├── how-it-works.tsx         # 3-step ordering process guide
 │   │   │   ├── pizzahub-logo.tsx        # Artisan SVG pizza logos
-│   │   │   ├── testimonials.tsx         # Foodie customer reviews
+│   │   │   ├── testimonials.tsx         # Foodie customer reviews (Dhaka)
 │   │   │   ├── theme-toggle.tsx         # Day / Night mode switcher
 │   │   │   ├── toast-provider.tsx       # Sonner toaster initialization
 │   │   │   ├── topNavbar.tsx            # Role-aware navigation bar
 │   │   │   └── vendor-spotlight.tsx     # Pizzeria partner spotlight
 │   │   ├── dashboard/
-│   │   │   ├── admin/page.tsx           # Platform Super Admin Control Center
+│   │   │   ├── page.tsx                 # Progressive sync & loading gateway
+│   │   │   ├── admin/page.tsx           # Platform Super Admin (Delete User action)
 │   │   │   ├── customer/page.tsx        # Customer order tracking
 │   │   │   │   └── orders/page.tsx      # Orders shortcut
 │   │   │   └── vendor/
@@ -216,7 +227,7 @@ client/
 │   │   ├── deals/page.tsx               # Hot Deals & promo vouchers
 │   │   ├── menu/
 │   │   │   ├── page.tsx                 # Server Component menu shell
-│   │   │   ├── page-client.tsx          # Client filter & pizza grid
+│   │   │   ├── page-client.tsx          # Client filter & Dhaka pizza grid
 │   │   │   └── [id]/
 │   │   │       ├── page.tsx             # Dynamic metadata & server prefetch
 │   │   │       └── details-client.tsx   # Pizza details & order customizer
@@ -226,11 +237,14 @@ client/
 │   │   ├── subscription/page.tsx        # Public subscription tier comparison
 │   │   ├── globals.css                  # Tailwind CSS v4 & theme overrides
 │   │   ├── layout.tsx                   # Root HTML layout with Toaster & theme
+│   │   ├── loading.tsx                  # Global Suspense route loader
+│   │   ├── not-found.tsx                # Custom 404 pizza oven error page
 │   │   └── page.tsx                     # Landing page (Async Server Component)
 │   └── lib/
 │       ├── api.ts                       # Universal client fetcher
 │       ├── auth.ts                      # Better-Auth server configuration
 │       ├── auth-client.ts               # Better-Auth client hooks
+│       ├── menu-service.ts              # Direct MongoDB menu service
 │       ├── mongodb.ts                   # Shared MongoDB connection pool
 │       ├── server-api.ts                # Server Component data fetching layer
 │       ├── toast.ts                     # PizzaHub custom branded toast helpers
@@ -318,5 +332,5 @@ npm run lint
 ---
 
 <div align="center">
-  <sub>PizzaHub Client • Built with Next.js 16, React 19, and Tailwind CSS v4.</sub>
+  <sub>PizzaHub Client • Built with Next.js 16, React 19, and Tailwind CSS v4 in Dhaka, Bangladesh.</sub>
 </div>

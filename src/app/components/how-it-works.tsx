@@ -9,7 +9,7 @@ const STEPS = [
     badge: "SELECT KITCHEN",
     title: "Discover Local Artisan Pizzerias",
     description:
-      "Browse hand-curated wood-fired kitchens in Manhattan, Brooklyn, and Queens. Check verified ratings, kitchen prep times, and chef specialties.",
+      "Browse hand-curated wood-fired kitchens in Gulshan, Banani, Dhanmondi, and Uttara. Check verified ratings, kitchen prep times, and chef specialties.",
     icon: "🗺️",
     gradient: "from-amber-500/20 to-orange-500/10",
     border: "group-hover:border-amber-500/50",

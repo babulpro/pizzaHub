@@ -131,7 +131,7 @@ export async function getMenuItemsFromDb(
       category: item.category || "Classic Pizzas",
       description: item.description || "",
       price: typeof item.price === "number" ? item.price : 18,
-      location: item.location || "New York",
+      location: item.location || "Dhaka, Bangladesh",
       images: Array.isArray(item.images) && item.images.length > 0
         ? item.images
         : [
@@ -199,7 +199,7 @@ export async function getMenuItemByIdFromDb(
       category: item.category || "Classic Pizzas",
       description: item.description || "",
       price: typeof item.price === "number" ? item.price : 18,
-      location: item.location || "New York",
+      location: item.location || "Dhaka, Bangladesh",
       images: Array.isArray(item.images) && item.images.length > 0
         ? item.images
         : [

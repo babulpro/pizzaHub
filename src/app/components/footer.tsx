@@ -20,7 +20,7 @@ const POLICY_DATA: Record<string, PolicyModalInfo> = {
     title: "About PizzaHub",
     icon: "🍕",
     content: [
-      "PizzaHub is New York's premier multi-vendor artisan pizza network, connecting foodies with passionate local pizzaiolos.",
+      "PizzaHub is Dhaka's premier multi-vendor artisan pizza network, connecting foodies with passionate local pizzaiolos across Bangladesh.",
       "Every pizzeria on our platform is verified for craftsmanship — fermenting naturally leavened sourdough for 48–72 hours and baking at 900°F in wood-fired or stone ovens.",
       "Our mission is to empower independent kitchens with modern digital ordering tools while delivering true Neapolitan and gourmet pizza perfection to your doorstep.",
     ],
@@ -141,7 +141,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <PizzaHubLogo size="md" />
             <p className="mt-4 max-w-sm text-xs leading-relaxed text-zinc-400">
-              The premier multi-vendor marketplace connecting wood-fired artisan kitchens with true pizza connoisseurs across New York.
+              The premier multi-vendor marketplace connecting wood-fired artisan kitchens with true pizza connoisseurs across Dhaka, Bangladesh.
             </p>
 
             {/* Live Operational Status */}
@@ -398,7 +398,7 @@ export default function Footer() {
             <span>•</span>
             <span>Powered by Stripe</span>
             <span className="hidden sm:inline">•</span>
-            <span className="w-full sm:w-auto text-center">Delivery: Manhattan • Brooklyn • Queens</span>
+            <span className="w-full sm:w-auto text-center">Delivery: Gulshan • Banani • Dhanmondi • Uttara • Mohakhali (Dhaka)</span>
           </div>
         </div>
       </div>
