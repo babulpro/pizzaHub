@@ -13,7 +13,7 @@
 [![Better-Auth](https://img.shields.io/badge/Better--Auth-1.7.26-6366F1?style=for-the-badge)](https://better-auth.com/)
 [![Sonner](https://img.shields.io/badge/Sonner-Toast_System-F59E0B?style=for-the-badge)](https://sonner.emilkowal.ski/)
 
-[Live Production Site](https://pizzahub-ruddy-gamma.vercel.app) • [Browse Pizza Menu](https://pizzahub-ruddy-gamma.vercel.app/menu) • [Hot Deals](https://pizzahub-ruddy-gamma.vercel.app/deals) • [Sign In (1-Click Demo)](https://pizzahub-ruddy-gamma.vercel.app/sign-in)
+[Live Production Site](https://pizzahub-ruddy-gamma.vercel.app) • [Browse Pizza Menu](https://pizzahub-ruddy-gamma.vercel.app/menu) • [Hot Deals](https://pizzahub-ruddy-gamma.vercel.app/deals) • [Sign In](https://pizzahub-ruddy-gamma.vercel.app/sign-in)
 
 </div>
 
@@ -108,8 +108,8 @@ flowchart TD
 - **Root Loader (`loading.tsx`):** Animated wood-fired oven glow, dual rotating rings, and pulsing pizza slice.
 - **Artisan 404 (`not-found.tsx`):** *"Looks Like This Slice Was Eaten!"* page with direct links back to Menu, Home, Deals, and Dashboard.
 
-### 5. 1-Click Demo Accounts & Social Authentication
-- **1-Click Demo Switcher:** Dedicated buttons on the Sign-In page to immediately test either the **👨‍🍳 Pizzeria Partner** or **🍕 Artisan Foodie** account without typing credentials.
+### 5. Social & Credential Authentication
+- **Credential & OAuth Sign-In:** Secure login via email & password or one-tap Google and GitHub social logins powered by Better-Auth.
 - **OAuth Providers:** Google and GitHub social logins powered by Better-Auth.
 - **Strict Role Lockdown:** Public registration only allows `customer` or `vendor`. The `admin` role can never be selected or injected during sign-up.
 
@@ -125,7 +125,7 @@ flowchart TD
 | `/menu` | `◐ (Partial Prerender)` | Live artisan pizza menu with interactive filters and quick order modal |
 | `/menu/[id]` | `◐ (Partial Prerender)` | Individual pizza recipe details, gallery, chef bio, and full order form |
 | `/deals` | `○ (Static)` | Hot Deals, countdown timer, coupon vouchers, and combo bundles |
-| `/(auth)/sign-in` | `○ (Static)` | User sign-in with 1-click demo logins and OAuth providers |
+| `/(auth)/sign-in` | `○ (Static)` | User sign-in with email/password and OAuth providers |
 | `/(auth)/sign-up` | `○ (Static)` | Role-gated registration (`customer` or `vendor` only) |
 | `/dashboard` | `○ (Static)` | Progressive sync gateway with animated loading steps |
 | `/dashboard/customer` | `○ (Static)` | Foodie orders history, status tracker, and order cancellation |
@@ -196,7 +196,7 @@ client/
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/                      # Authentication route group
-│   │   │   ├── sign-in/page.tsx         # Sign In view with 1-click demo logins
+│   │   │   ├── sign-in/page.tsx         # Sign In view with email/password and OAuth
 │   │   │   └── sign-up/page.tsx         # Role-gated registration
 │   │   ├── actions/                     # Next.js Server Actions
 │   │   │   └── vip.ts                   # VIP Club mutation & revalidatePath

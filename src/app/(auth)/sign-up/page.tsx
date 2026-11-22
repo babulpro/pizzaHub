@@ -153,7 +153,7 @@ export default function SignUpPage() {
               required
               minLength={2}
               autoComplete="name"
-              placeholder={role === "vendor" ? "Marco Bellini" : "Elena Gomez"}
+              placeholder={role === "vendor" ? "Tanvir Ahmed" : "Sofia Rahman"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={inputClasses}
@@ -177,7 +177,7 @@ export default function SignUpPage() {
                   name="businessName"
                   type="text"
                   required
-                  placeholder="e.g. Forno Napoli Wood-Fired"
+                  placeholder="e.g. Artisan Wood-Fired Co."
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   className={inputClasses}

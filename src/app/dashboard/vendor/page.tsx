@@ -1445,7 +1445,7 @@ export default function VendorDashboardPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Forno Napoli Wood-Fired"
+                  placeholder="e.g. Artisan Wood-Fired Co."
                   value={editShopName}
                   onChange={(e) => setEditShopName(e.target.value)}
                   className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
@@ -1461,7 +1461,7 @@ export default function VendorDashboardPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Marco Bellini"
+                  placeholder="e.g. Tanvir Ahmed"
                   value={editChefName}
                   onChange={(e) => setEditChefName(e.target.value)}
                   className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"

@@ -16,7 +16,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "The Black Truffle & Bresaola pie from Forno Napoli is Michelin-worthy. PizzaHub makes ordering directly from true wood-fired artisans effortless.",
+      "The Black Truffle & Bresaola pie is Michelin-worthy. PizzaHub makes ordering directly from true wood-fired artisans in Dhaka effortless.",
     author: "Marcus Vance",
     role: "Gourmet Pizza Enthusiast",
     location: "Dhanmondi, Dhaka",
@@ -27,12 +27,12 @@ const TESTIMONIALS = [
   {
     quote:
       "As an artisan pizzaiolo, PizzaHub's vendor dashboard made expanding our kitchen seamless. The Gold Premium placement substantially boosted our kitchen reach and brought in enthusiastic new regulars.",
-    author: "Marco Bellini",
+    author: "Chef Tanvir Ahmed",
     role: "Head Chef & Pizzeria Owner",
     location: "Banani, Dhaka",
     avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-    favoritePizza: "Diavola Calabrese Piccante",
+    favoritePizza: "Calabria Inferno Pepperoni",
   },
 ];
 
