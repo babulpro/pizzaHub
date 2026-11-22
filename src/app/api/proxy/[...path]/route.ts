@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import Stripe from "stripe";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import { getDb } from "@/lib/mongodb";
 import {
   joinVipMemberService,
@@ -265,6 +268,171 @@ async function handleProxy(
             success: true,
             message: "Gold Premium Kitchen subscription confirmed & activated!",
             subscriptionPlan: "premium",
+          });
+        }
+      }
+    }
+
+    // Direct fallback for auth/token & auth/login if remote backend fails or times out
+    if ((!response || !response.ok) && subPath.startsWith("auth/")) {
+      const db = await getDb();
+      const usersCollection = db.collection("users");
+
+      if (subPath === "auth/token" && req.method === "POST") {
+        let bodyJson: { email?: string; name?: string; role?: string; businessName?: string; password?: string } = {};
+        try {
+          bodyJson = JSON.parse(rawBody || "{}");
+        } catch {
+          // ignore
+        }
+
+        if (bodyJson.email) {
+          const cleanEmail = bodyJson.email.trim().toLowerCase();
+          let user = await usersCollection.findOne({ email: cleanEmail });
+
+          if (!user) {
+            const newUser = {
+              name: bodyJson.name || cleanEmail.split("@")[0],
+              email: cleanEmail,
+              role: bodyJson.role || "customer",
+              businessName: bodyJson.role === "vendor" ? bodyJson.businessName || "My Pizzeria" : undefined,
+              subscriptionPlan: "free",
+              subscriptionExpiresAt: null,
+              isBlocked: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            const insRes = await usersCollection.insertOne(newUser);
+            user = { _id: insRes.insertedId, ...newUser };
+          }
+
+          const jwtSecret = process.env.JWT_SECRET || "xyz-123-abc";
+          const token = jwt.sign(
+            {
+              id: user._id.toString(),
+              email: user.email,
+              role: user.role || "customer",
+            },
+            jwtSecret,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as any }
+          );
+
+          return NextResponse.json({
+            success: true,
+            token,
+            user: {
+              id: user._id.toString(),
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              subscriptionPlan: user.subscriptionPlan,
+            },
+          });
+        }
+      }
+
+      if (subPath === "auth/login" && req.method === "POST") {
+        let bodyJson: { email?: string; password?: string } = {};
+        try {
+          bodyJson = JSON.parse(rawBody || "{}");
+        } catch {
+          // ignore
+        }
+
+        if (bodyJson.email && bodyJson.password) {
+          const cleanEmail = bodyJson.email.trim().toLowerCase();
+          const user = await usersCollection.findOne({ email: cleanEmail });
+
+          if (!user) {
+            return NextResponse.json({ success: false, message: "Invalid email or password." }, { status: 401 });
+          }
+          if (user.isBlocked) {
+            return NextResponse.json(
+              { success: false, message: "Your account has been blocked by an administrator." },
+              { status: 403 }
+            );
+          }
+
+          let isMatch = false;
+          if (user.password) {
+            if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$") || user.password.startsWith("$2y$")) {
+              isMatch = await bcrypt.compare(bodyJson.password, user.password);
+            } else {
+              try {
+                const [salt, key] = user.password.split(":");
+                if (salt && key) {
+                  const dk = await new Promise<Buffer>((resolve, reject) => {
+                    crypto.scrypt(
+                      bodyJson.password!.normalize("NFKC"),
+                      salt,
+                      64,
+                      { N: 16384, r: 16, p: 1, maxmem: 128 * 16384 * 16 * 2 },
+                      (err, k) => (err ? reject(err) : resolve(k as Buffer))
+                    );
+                  });
+                  isMatch = dk.toString("hex") === key;
+                }
+              } catch {
+                isMatch = false;
+              }
+            }
+          }
+
+          if (!isMatch) {
+            const account = await db.collection("accounts").findOne({ userId: user._id, providerId: "credential" });
+            if (account?.password) {
+              if (account.password.startsWith("$2a$") || account.password.startsWith("$2b$") || account.password.startsWith("$2y$")) {
+                isMatch = await bcrypt.compare(bodyJson.password, account.password);
+              } else {
+                try {
+                  const [salt, key] = account.password.split(":");
+                  if (salt && key) {
+                    const dk = await new Promise<Buffer>((resolve, reject) => {
+                      crypto.scrypt(
+                        bodyJson.password!.normalize("NFKC"),
+                        salt,
+                        64,
+                        { N: 16384, r: 16, p: 1, maxmem: 128 * 16384 * 16 * 2 },
+                        (err, k) => (err ? reject(err) : resolve(k as Buffer))
+                      );
+                    });
+                    isMatch = dk.toString("hex") === key;
+                  }
+                } catch {
+                  isMatch = false;
+                }
+              }
+            }
+          }
+
+          if (!isMatch) {
+            return NextResponse.json({ success: false, message: "Invalid email or password." }, { status: 401 });
+          }
+
+          const jwtSecret = process.env.JWT_SECRET || "xyz-123-abc";
+          const token = jwt.sign(
+            {
+              id: user._id.toString(),
+              email: user.email,
+              role: user.role || "customer",
+            },
+            jwtSecret,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as any }
+          );
+
+          return NextResponse.json({
+            success: true,
+            message: "Login successful!",
+            token,
+            user: {
+              id: user._id.toString(),
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              subscriptionPlan: user.subscriptionPlan,
+            },
           });
         }
       }

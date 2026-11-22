@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { signIn, useSession } from "@/lib/auth-client";
@@ -20,8 +20,9 @@ import {
   type Role,
 } from "@/app/components/auth-ui";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, isPending: sessionLoading } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +37,23 @@ export default function SignInPage() {
       router.replace("/");
     }
   }, [session, sessionLoading, router]);
+
+  // Check URL searchParams for OAuth errors (e.g. Google redirect back)
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err) {
+      let friendly = "Sign-in encountered an issue. Please try again.";
+      if (err === "access_denied") {
+        friendly = "Google sign-in was cancelled by user.";
+      } else if (err.includes("OAuth") || err.includes("oauth")) {
+        friendly = "Google OAuth authentication error. Please verify your account and try again.";
+      } else if (err === "LINKING_NOT_ALLOWED" || err === "ACCOUNT_NOT_LINKED") {
+        friendly = "Account exists with another login method. Account linking is now enabled — please try again.";
+      }
+      setError(friendly);
+      showToast.error("Authentication", friendly);
+    }
+  }, [searchParams]);
 
   const fillDemoAccount = (demoEmail: string, demoPass: string, demoRole?: Role) => {
     setEmail(demoEmail);
@@ -86,6 +104,7 @@ export default function SignInPage() {
         const directData = await directRes.json();
         if (directData.success && directData.token) {
           localStorage.setItem("pizzahub_jwt_token", directData.token);
+          localStorage.setItem("pizzahub_auth_token", directData.token);
           showToast.pizza(
             "Welcome Back!",
             "Authentication successful. Directing to PizzaHub..."
@@ -113,7 +132,11 @@ export default function SignInPage() {
       "Welcome Back! 🍕",
       "Signed in successfully. Warming up the oven..."
     );
-    await ensureApiToken(passwordVal);
+    const syncedToken = await ensureApiToken(passwordVal);
+    if (syncedToken) {
+      localStorage.setItem("pizzahub_jwt_token", syncedToken);
+      localStorage.setItem("pizzahub_auth_token", syncedToken);
+    }
     router.push("/");
   };
 
@@ -183,9 +206,9 @@ export default function SignInPage() {
               id="email"
               name="email"
               type="email"
-              required
               autoComplete="email"
-              placeholder="mario@pizzahub.com"
+              required
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={inputClasses}
@@ -221,5 +244,13 @@ export default function SignInPage() {
         </form>
       </div>
     </AuthShell>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0c0c0e]" />}>
+      <SignInContent />
+    </Suspense>
   );
 }

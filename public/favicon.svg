@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181B"/>
+      <stop offset="50%" stop-color="#121214"/>
+      <stop offset="100%" stop-color="#09090B"/>
+    </linearGradient>
+
+    <!-- Warm Hearth Oven Glow -->
+    <radialGradient id="ovenGlow" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#EA580C" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#F59E0B" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Border Glow -->
+    <linearGradient id="rimGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#EA580C" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#EF4444" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <!-- Artisan Crust Gradient -->
+    <linearGradient id="crustGrad" x1="0%" y1="0%" x2="100%" y2="30%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="35%" stop-color="#D97706"/>
+      <stop offset="70%" stop-color="#B45309"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+
+    <!-- Golden Mozzarella Cheese Gradient -->
+    <linearGradient id="cheeseGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="25%" stop-color="#FDE047"/>
+      <stop offset="65%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+
+    <!-- Rich Tomato Sauce Gradient -->
+    <linearGradient id="sauceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444"/>
+      <stop offset="60%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#991B1B"/>
+    </linearGradient>
+
+    <!-- Pepperoni Gradient -->
+    <radialGradient id="pepGrad1" cx="38%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="45%" stop-color="#DC2626"/>
+      <stop offset="85%" stop-color="#991B1B"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </radialGradient>
+
+    <!-- Fresh Basil Gradient -->
+    <linearGradient id="basilGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="50%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+
+    <!-- Drop Shadow Filter for 3D Depth -->
+    <filter id="shadow3d" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+
+    <filter id="crustShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#78350F" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with Soft Glow -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)"/>
+  <circle cx="256" cy="256" r="230" fill="url(#ovenGlow)"/>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="url(#rimGlow)" stroke-width="10"/>
+
+  <!-- Pizza Slice Main Group -->
+  <g filter="url(#shadow3d)">
+    
+    <!-- Red Sauce Peeking Edge -->
+    <path d="M 124 152 
+             C 185 130, 327 130, 388 152 
+             C 388 152, 380 200, 266 432 
+             C 260 444, 252 444, 246 432 
+             C 132 200, 124 152, 124 152 Z" 
+          fill="url(#sauceGrad)"/>
+
+    <!-- Melted Golden Mozzarella -->
+    <path d="M 132 160 
+             C 190 142, 322 142, 380 160 
+             C 376 195, 335 275, 276 385 
+             C 270 398, 265 418, 256 426
+             C 247 418, 242 398, 236 385 
+             C 177 275, 136 195, 132 160 Z" 
+          fill="url(#cheeseGrad)"/>
+
+    <!-- Cheese Texture / Melt Highlights -->
+    <!-- Melting Drips -->
+    <path d="M 246 410 C 248 428, 252 436, 256 436 C 260 436, 264 428, 266 410 Z" fill="#FEF08A"/>
+    <!-- Cheese Ripple 1 -->
+    <path d="M 175 190 Q 256 220 335 195" stroke="#FEF08A" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.75"/>
+    <!-- Cheese Ripple 2 -->
+    <path d="M 200 245 Q 260 270 310 248" stroke="#FEF08A" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <!-- Cheese Ripple 3 -->
+    <path d="M 222 315 Q 256 335 290 320" stroke="#FEF08A" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65"/>
+
+    <!-- Thick Wood-Fired Artisan Crust -->
+    <path d="M 108 146 
+             C 170 114, 342 114, 404 146 
+             C 414 151, 412 166, 396 168 
+             C 334 176, 178 176, 116 168 
+             C 100 166, 98 151, 108 146 Z" 
+          fill="url(#crustGrad)" 
+          stroke="#78350F" 
+          stroke-width="3"
+          filter="url(#crustShadow)"/>
+
+    <!-- Wood-Fired Blister Spots on Crust -->
+    <ellipse cx="160" cy="142" rx="9" ry="5" fill="#451A03" opacity="0.75"/>
+    <ellipse cx="230" cy="135" rx="14" ry="6" fill="#451A03" opacity="0.85"/>
+    <ellipse cx="300" cy="136" rx="11" ry="5.5" fill="#451A03" opacity="0.8"/>
+    <ellipse cx="360" cy="144" rx="8" ry="4.5" fill="#451A03" opacity="0.7"/>
+
+    <!-- Crust Golden Highlight -->
+    <path d="M 130 138 C 190 122, 320 122, 380 138" stroke="#FDE047" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+    <!-- Pepperoni 1 (Top Left) -->
+    <g>
+      <circle cx="206" cy="224" r="34" fill="url(#pepGrad1)" stroke="#7F1D1D" stroke-width="2.5"/>
+      <!-- Pepperoni Seasoning Flecks -->
+      <circle cx="198" cy="216" r="3" fill="#FEF08A" opacity="0.8"/>
+      <circle cx="218" cy="220" r="2.5" fill="#FEF08A" opacity="0.7"/>
+      <circle cx="204" cy="236" r="2.2" fill="#FEF08A" opacity="0.75"/>
+      <circle cx="190" cy="228" r="2" fill="#450A0A" opacity="0.8"/>
+      <!-- Sizzle Specular Arc -->
+      <path d="M 188 206 A 24 24 0 0 1 224 206" stroke="#FECACA" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.85"/>
+    </g>
+
+    <!-- Pepperoni 2 (Middle Right) -->
+    <g>
+      <circle cx="316" cy="254" r="38" fill="url(#pepGrad1)" stroke="#7F1D1D" stroke-width="2.5"/>
+      <!-- Seasoning -->
+      <circle cx="308" cy="246" r="3.2" fill="#FEF08A" opacity="0.8"/>
+      <circle cx="328" cy="250" r="2.5" fill="#FEF08A" opacity="0.7"/>
+      <circle cx="318" cy="268" r="2.8" fill="#FEF08A" opacity="0.75"/>
+      <circle cx="302" cy="260" r="2" fill="#450A0A" opacity="0.8"/>
+      <!-- Sizzle Specular Arc -->
+      <path d="M 296 234 A 28 28 0 0 1 336 234" stroke="#FECACA" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85"/>
+    </g>
+
+    <!-- Pepperoni 3 (Lower Center) -->
+    <g>
+      <circle cx="254" cy="336" r="30" fill="url(#pepGrad1)" stroke="#7F1D1D" stroke-width="2.5"/>
+      <!-- Seasoning -->
+      <circle cx="248" cy="330" r="2.5" fill="#FEF08A" opacity="0.8"/>
+      <circle cx="262" cy="334" r="2.2" fill="#FEF08A" opacity="0.7"/>
+      <circle cx="252" cy="346" r="2.5" fill="#FEF08A" opacity="0.75"/>
+      <!-- Sizzle Specular Arc -->
+      <path d="M 238 320 A 20 20 0 0 1 270 320" stroke="#FECACA" stroke-width="3.2" stroke-linecap="round" fill="none" opacity="0.85"/>
+    </g>
+
+    <!-- Fresh Garden Basil Leaf (Top Center - Fresh Artisan Contrast) -->
+    <g transform="translate(254, 192) rotate(-18)">
+      <path d="M 0 -28 
+               C 22 -20, 28 12, 0 34 
+               C -28 12, -22 -20, 0 -28 Z" 
+            fill="url(#basilGrad)" 
+            stroke="#14532D" 
+            stroke-width="1.8"/>
+      <!-- Center Leaf Vein -->
+      <path d="M 0 -22 Q 2 5 0 28" stroke="#86EFAC" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+      <!-- Side Leaf Veins -->
+      <path d="M 0 -10 Q 8 -15 13 -13" stroke="#86EFAC" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.75"/>
+      <path d="M 0 2 Q -8 -2 -13 0" stroke="#86EFAC" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.75"/>
+      <path d="M 0 14 Q 8 9 12 11" stroke="#86EFAC" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.75"/>
+    </g>
+
+    <!-- Small Baby Basil Leaf (Lower Left Accent) -->
+    <g transform="translate(196, 290) rotate(35) scale(0.68)">
+      <path d="M 0 -24 
+               C 18 -18, 24 10, 0 28 
+               C -24 10, -18 -18, 0 -24 Z" 
+            fill="url(#basilGrad)" 
+            stroke="#14532D" 
+            stroke-width="1.8"/>
+      <path d="M 0 -18 Q 2 5 0 24" stroke="#86EFAC" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+    </g>
+
+    <!-- Artisan Steam / Sparkle Accent (Top Right) -->
+    <g transform="translate(400, 100) scale(0.9)">
+      <!-- 4-point Sparkle Star -->
+      <path d="M 0 -24 Q 0 0 24 0 Q 0 0 0 24 Q 0 0 -24 0 Q 0 0 0 -24 Z" fill="#FDE047"/>
+      <circle cx="0" cy="0" r="5" fill="#FFFFFF"/>
+    </g>
+
+    <g transform="translate(90, 195) scale(0.55)">
+      <!-- Mini Sparkle Star -->
+      <path d="M 0 -20 Q 0 0 20 0 Q 0 0 0 20 Q 0 0 -20 0 Q 0 0 0 -20 Z" fill="#F59E0B" opacity="0.85"/>
+      <circle cx="0" cy="0" r="4" fill="#FFFFFF"/>
+    </g>
+
+  </g>
+</svg>

@@ -83,6 +83,7 @@ export default function SignUpPage() {
         const directData = await directRes.json();
         if (directData.success && directData.token) {
           localStorage.setItem("pizzahub_jwt_token", directData.token);
+          localStorage.setItem("pizzahub_auth_token", directData.token);
           showToast.pizza(
             "Account Created! 🍕",
             `Welcome to PizzaHub, ${name.trim()}! Initializing your session...`
@@ -107,7 +108,11 @@ export default function SignUpPage() {
       "Welcome to PizzaHub! 🍕",
       `Your ${role === "vendor" ? "Pizzeria Kitchen" : "Artisan Foodie"} account is ready!`
     );
-    await ensureApiToken(password);
+    const syncedToken = await ensureApiToken(password);
+    if (syncedToken) {
+      localStorage.setItem("pizzahub_jwt_token", syncedToken);
+      localStorage.setItem("pizzahub_auth_token", syncedToken);
+    }
     router.push("/");
   };
 

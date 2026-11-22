@@ -2,6 +2,8 @@ import { betterAuth } from "better-auth";
 import { APIError, getOAuthState } from "better-auth/api";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
+import bcrypt from "bcryptjs";
+import { hashPassword, verifyPassword } from "@better-auth/utils/password";
 
 const client = new MongoClient(process.env.MONGODB_URI as string);
 const db = client.db(process.env.DB_NAME || "PizzaHub");
@@ -25,8 +27,15 @@ const normalizeRole = (value: unknown): PublicRole | null => {
     : null;
 };
 
+const getBaseURL = () => {
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.NEXT_PUBLIC_BETTER_AUTH_URL) return process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+};
+
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL as string,
+  baseURL: getBaseURL(),
   secret: process.env.BETTER_AUTH_SECRET,
   socialProviders: {
     google: {
@@ -40,6 +49,33 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    password: {
+      hash: async (password: string) => {
+        return hashPassword(password);
+      },
+      verify: async ({ hash, password }: { hash: string; password: string }) => {
+        // Support bcrypt hashes ($2a$, $2b$, $2y$) from seed/Express server
+        if (hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$")) {
+          try {
+            return await bcrypt.compare(password, hash);
+          } catch {
+            return false;
+          }
+        }
+        // Support Better-Auth scrypt hashes
+        try {
+          return await verifyPassword(hash, password);
+        } catch {
+          return false;
+        }
+      },
+    },
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google", "github"],
+    },
   },
   user: {
     additionalFields: {
@@ -102,7 +138,7 @@ export const auth = betterAuth({
       update: {
         before: async (data) => {
           const { role } = data as { role?: unknown };
-          if (role !== undefined && normalizeRole(role) === null) {
+          if (role !== undefined && role !== "admin" && normalizeRole(role) === null) {
             throw new APIError("BAD_REQUEST", {
               message: "Invalid role. Choose either customer or vendor.",
             });
