@@ -28,15 +28,44 @@ const normalizeRole = (value: unknown): PublicRole | null => {
 };
 
 const getBaseURL = () => {
-  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
-  if (process.env.NEXT_PUBLIC_BETTER_AUTH_URL) return process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
+  // If running in development locally (and not in Vercel):
+  if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
+    if (process.env.LOCAL_AUTH_URL) return process.env.LOCAL_AUTH_URL;
+    if (process.env.BETTER_AUTH_URL?.includes("localhost")) {
+      return process.env.BETTER_AUTH_URL;
+    }
+    return "http://localhost:3000";
+  }
+
+  // Production or Vercel deployment:
+  if (process.env.CLIENT_URL) return process.env.CLIENT_URL;
+  if (process.env.NEXT_PUBLIC_CLIENT_URL) return process.env.NEXT_PUBLIC_CLIENT_URL;
+  if (process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost")) {
+    return process.env.BETTER_AUTH_URL;
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "https://pizzahub-ruddy-gamma.vercel.app";
 };
 
 export const auth = betterAuth({
   baseURL: getBaseURL(),
   secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://localhost:3000",
+    "https://pizzahub-ruddy-gamma.vercel.app",
+    "https://*.vercel.app",
+  ],
+  advanced: {
+    trustedProxyHeaders: true,
+    useSecureCookies: process.env.NODE_ENV === "production",
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,

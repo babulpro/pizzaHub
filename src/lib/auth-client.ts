@@ -7,7 +7,9 @@ export const authClient = createAuthClient({
   baseURL:
     typeof window !== "undefined"
       ? window.location.origin
-      : process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
+      : process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+        process.env.NEXT_PUBLIC_CLIENT_URL ||
+        "https://pizzahub-ruddy-gamma.vercel.app",
   // Makes the `role` additional field type-safe on the client
   // (signUp.email({ role }), session.user.role, etc.)
   plugins: [inferAdditionalFields<typeof auth>()],

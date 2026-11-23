@@ -80,10 +80,10 @@ function SignInContent() {
     });
 
     if (authError) {
-      // Fallback: If Better-Auth session fails, attempt direct server login via API
+      // Fallback: If Better-Auth session fails, attempt direct server login via internal API proxy
       try {
         const directRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "https://pizzaserver.vercel.app/api"}/auth/login`,
+          "/api/proxy/auth/login",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -107,7 +107,7 @@ function SignInContent() {
 
       const errMessage =
         authError.message === "Invalid email or password"
-          ? "Incorrect email or password. Please try again."
+          ? "Incorrect email or password. If your account was created with Google or GitHub, please use the social sign-in button above."
           : (authError.message ?? "Something went wrong. Please check your credentials.");
 
       setError(errMessage);
