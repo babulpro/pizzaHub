@@ -5,8 +5,21 @@ import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import bcrypt from "bcryptjs";
 import { hashPassword, verifyPassword } from "@better-auth/utils/password";
 
-const client = new MongoClient(process.env.MONGODB_URI as string);
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb://PizzaHub:XJBqKeKG0yqkv6Vh@ac-yv7g1rx-shard-00-00.ai4dcx0.mongodb.net:27017,ac-yv7g1rx-shard-00-01.ai4dcx0.mongodb.net:27017,ac-yv7g1rx-shard-00-02.ai4dcx0.mongodb.net:27017/PizzaHub?ssl=true&replicaSet=atlas-uh0pmv-shard-0&authSource=admin";
+
+const client = new MongoClient(MONGODB_URI);
 const db = client.db(process.env.DB_NAME || "PizzaHub");
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+const BETTER_AUTH_SECRET =
+  process.env.BETTER_AUTH_SECRET || "PizzaHub-Production-Better-Auth-Secret-Key-2026";
 
 /**
  * Roles a user may select during PizzaHub registration.
@@ -54,7 +67,7 @@ const getBaseURL = () => {
 
 export const auth = betterAuth({
   baseURL: getBaseURL(),
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret: BETTER_AUTH_SECRET,
   trustedOrigins: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -67,14 +80,22 @@ export const auth = betterAuth({
     useSecureCookies: process.env.NODE_ENV === "production",
   },
   socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    },
+    ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: GOOGLE_CLIENT_ID,
+            clientSecret: GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
+      ? {
+          github: {
+            clientId: GITHUB_CLIENT_ID,
+            clientSecret: GITHUB_CLIENT_SECRET,
+          },
+        }
+      : {}),
   },
   emailAndPassword: {
     enabled: true,

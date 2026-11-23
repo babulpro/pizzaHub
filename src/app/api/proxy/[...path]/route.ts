@@ -454,6 +454,83 @@ async function handleProxy(
         }
       }
 
+      if (subPath === "auth/register" && req.method === "POST") {
+        let bodyJson: { name?: string; email?: string; password?: string; role?: string; businessName?: string } = {};
+        try {
+          bodyJson = JSON.parse(rawBody || "{}");
+        } catch {
+          // ignore
+        }
+
+        if (bodyJson.email && bodyJson.password) {
+          const cleanEmail = bodyJson.email.trim().toLowerCase();
+          const existing = await usersCollection.findOne({ email: cleanEmail });
+          if (existing) {
+            return NextResponse.json(
+              { success: false, message: "An account with this email already exists." },
+              { status: 400 }
+            );
+          }
+
+          const hashedPassword = await bcrypt.hash(bodyJson.password, 10);
+          const now = new Date();
+          const role = bodyJson.role === "vendor" ? "vendor" : "customer";
+          const newUser = {
+            name: bodyJson.name ? bodyJson.name.trim() : cleanEmail.split("@")[0],
+            email: cleanEmail,
+            password: hashedPassword,
+            role,
+            businessName: role === "vendor" ? bodyJson.businessName?.trim() || "My Pizzeria" : undefined,
+            subscriptionPlan: "free",
+            subscriptionExpiresAt: null,
+            isBlocked: false,
+            createdAt: now,
+            updatedAt: now,
+          };
+
+          const result = await usersCollection.insertOne(newUser);
+          const userId = result.insertedId;
+
+          // Mirror to accounts collection so Better-Auth and Express share state
+          await db.collection("accounts").insertOne({
+            userId,
+            accountId: userId.toString(),
+            providerId: "credential",
+            password: hashedPassword,
+            createdAt: now,
+            updatedAt: now,
+          });
+
+          const jwtSecret = process.env.JWT_SECRET || "xyz-123-abc";
+          const token = jwt.sign(
+            {
+              id: userId.toString(),
+              email: cleanEmail,
+              role,
+            },
+            jwtSecret,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as any }
+          );
+
+          return NextResponse.json(
+            {
+              success: true,
+              message: "Account created successfully with secure hashed password!",
+              token,
+              user: {
+                id: userId.toString(),
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+                subscriptionPlan: newUser.subscriptionPlan,
+              },
+            },
+            { status: 201 }
+          );
+        }
+      }
+
       if (subPath === "auth/login" && req.method === "POST") {
         let bodyJson: { email?: string; password?: string } = {};
         try {

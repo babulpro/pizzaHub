@@ -1,6 +1,8 @@
 import { MongoClient, Db } from "mongodb";
 
-const uri = process.env.MONGODB_URI as string;
+const uri =
+  process.env.MONGODB_URI ||
+  "mongodb://PizzaHub:XJBqKeKG0yqkv6Vh@ac-yv7g1rx-shard-00-00.ai4dcx0.mongodb.net:27017,ac-yv7g1rx-shard-00-01.ai4dcx0.mongodb.net:27017,ac-yv7g1rx-shard-00-02.ai4dcx0.mongodb.net:27017/PizzaHub?ssl=true&replicaSet=atlas-uh0pmv-shard-0&authSource=admin";
 const dbName = process.env.DB_NAME || "PizzaHub";
 
 let client: MongoClient | null = null;

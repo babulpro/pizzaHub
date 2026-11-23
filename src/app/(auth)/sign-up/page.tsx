@@ -64,10 +64,10 @@ export default function SignUpPage() {
     });
 
     if (authError) {
-      // Fallback: If Better-Auth fails, attempt direct server registration via API
+      // Fallback: If Better-Auth fails, attempt direct server registration via internal API proxy
       try {
         const directRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "https://pizzaserver.vercel.app/api"}/auth/register`,
+          "/api/proxy/auth/register",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
