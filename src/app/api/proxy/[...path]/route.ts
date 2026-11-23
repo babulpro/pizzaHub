@@ -16,6 +16,11 @@ import {
   getMenuItemsFromDb,
   getMenuItemByIdFromDb,
 } from "@/lib/menu-service";
+import {
+  getReviewsForMenuItem,
+  checkReviewEligibilityService,
+  submitReviewService,
+} from "@/lib/review-service";
 
 const TARGET_BASE =
   process.env.API_SERVER_URL ||
@@ -65,6 +70,84 @@ async function handleProxy(
     if (req.method !== "GET" && req.method !== "HEAD") {
       rawBody = await req.text();
       init.body = rawBody;
+    }
+
+    // =========================================================================
+    // Native Customer Reviews Handling
+    // =========================================================================
+    if (subPath.startsWith("reviews")) {
+      const authHeader = auth || "";
+
+      // 1. Check eligibility (must have ordered at least one pizza on PizzaHub)
+      if (subPath === "reviews/eligibility" && req.method === "GET") {
+        const itemId = req.nextUrl.searchParams.get("itemId");
+        const eligibility = await checkReviewEligibilityService(authHeader, itemId);
+        return NextResponse.json({ success: true, ...eligibility });
+      }
+
+      // 2. Get reviews for a pizza
+      if (subPath === "reviews" && req.method === "GET") {
+        const itemId = req.nextUrl.searchParams.get("itemId");
+        if (!itemId) {
+          return NextResponse.json(
+            { success: false, message: "itemId query parameter is required." },
+            { status: 400 }
+          );
+        }
+        const { reviews, stats } = await getReviewsForMenuItem(itemId);
+        return NextResponse.json({
+          success: true,
+          count: reviews.length,
+          stats,
+          data: reviews,
+        });
+      }
+
+      // 3. Post a new review or update existing review
+      if (subPath === "reviews" && req.method === "POST") {
+        let bodyJson: { itemId?: string; rating?: number; comment?: string } = {};
+        try {
+          bodyJson = JSON.parse(rawBody || "{}");
+        } catch {
+          // ignore
+        }
+
+        const result = await submitReviewService(authHeader, {
+          itemId: bodyJson.itemId || "",
+          rating: Number(bodyJson.rating) || 5,
+          comment: bodyJson.comment || "",
+        });
+
+        return NextResponse.json(
+          {
+            success: result.success,
+            message: result.message,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: (result as any).data,
+          },
+          { status: result.status }
+        );
+      }
+
+      // 4. Delete review
+      if (subPath.startsWith("reviews/") && req.method === "DELETE") {
+        const reviewId = subPath.replace("reviews/", "").trim();
+        if (reviewId && ObjectId.isValid(reviewId)) {
+          const db = await getDb();
+          const payload = parseJwtPayload(authHeader);
+          const review = await db.collection("reviews").findOne({ _id: new ObjectId(reviewId) });
+          if (!review) {
+            return NextResponse.json({ success: false, message: "Review not found" }, { status: 404 });
+          }
+          const isOwner = review.customerId?.toString() === (payload?.id || payload?._id)?.toString();
+          const isAdmin = payload?.role === "admin";
+          if (!isOwner && !isAdmin) {
+            return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+          }
+          await db.collection("reviews").deleteOne({ _id: new ObjectId(reviewId) });
+          return NextResponse.json({ success: true, message: "Review deleted successfully." });
+        }
+      }
     }
 
     // =========================================================================

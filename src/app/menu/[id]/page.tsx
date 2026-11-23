@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import PizzaDetailsClient from "./details-client";
 import { getServerMenuItemById } from "@/lib/server-api";
+import { getReviewsForMenuItem } from "@/lib/review-service";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -31,8 +32,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function DetailsContent({ params }: PageProps) {
   const { id } = await params;
-  const initialItem = await getServerMenuItemById(id);
-  return <PizzaDetailsClient id={id} initialItem={initialItem} />;
+  const [initialItem, reviewData] = await Promise.all([
+    getServerMenuItemById(id),
+    getReviewsForMenuItem(id),
+  ]);
+
+  return (
+    <PizzaDetailsClient
+      id={id}
+      initialItem={initialItem}
+      initialReviews={reviewData.reviews}
+      initialStats={reviewData.stats}
+    />
+  );
 }
 
 export default function PizzaDetailsPage({ params }: PageProps) {
